@@ -22,26 +22,17 @@ class P
     {
         if(p.length == 1 && Array.isArray(p[0])) p = p[0];
         return new P( 
-            (resolve) => {
+            (resolve,reject) => {
                 let fullilled = 0;
                 let values = [];
-
-                function check()
-                { 
-                    if(fullilled == p.length) resolve(values);
-                }
-
-                function handler(v) 
-                {
+                let check = _ => fullilled == p.length?resolve(values):0;
+                let handler = v => {
                     fullilled++;
                     values.push(v);
                     check();
                 }
-
-                for(let prom of p)
-                {
-                    prom.then(handler,handler);
-                }
+                let rejHandler = e => reject(e);
+                for(let prom of p) prom.then(handler,rejHandler);
             }
         );
     }
@@ -53,22 +44,25 @@ class P
             (resolve) => {
                 let fullilled = 0;
                 let done = false;
-
-                function handler(v) 
-                {
+                let handler = v => {
                     if(!done) 
                     {
                         done = true;
                         resolve(v);
                     }
                 }
-
+                let rejHandler = e => reject(e);
                 for(let prom of p)
                 {
-                    prom.then(handler,handler);
+                    prom.then(handler,rejHandler);
                 }
             }
         );
+    }
+
+    static delay(value,ms)
+    {
+        return new P((resolve) => setTimeout(()=>resolve(value),ms));
     }
 
     constructor(logic,async = true,type = vachan.default_type)
@@ -157,10 +151,10 @@ class P
                     let recalled = false;
                     x.then((v) => {
                         if(!rcalled && !recalled) recurHandler(v);
-                        called = true;
+                        rcalled = true;
                     },(e) => {
                         if(!rcalled && !recalled) reject(e);
-                        called = true;
+                        recalled = true;
                     });
                 }
                 else if( 
@@ -175,7 +169,7 @@ class P
                     try
                     {
                         let then = x["then"];
-                        if(then !== undefined && then instanceof Function && typeof(then) == "function")
+                        if(then !== undefined && (then instanceof Function && typeof(then) == "function"))
                         {
                             then.call(x,(v) => {
                                 if(!rcalled && !recalled) recurHandler(v);
@@ -229,7 +223,7 @@ class P
                 else this.success_handler.push(resolve);
                 if(f) this.failure_handler.push(handler(f));
                 else this.failure_handler.push(reject);
-            }   
+            }
         });
     }
 
@@ -242,6 +236,12 @@ class P
     {
         return this.then(h,h);
     }
+
+    delay(ms)
+    {
+        let handler = v => setTimeout(()=>v,ms);
+        return this.then(handler,handler);
+    }
 }
 
 vachan.P = P;
@@ -252,12 +252,4 @@ if(typeof(window) === "undefined")
     module.exports.P = P;
     module.exports.Macro = vachan.Macro;
     module.exports.Micro = vachan.Micro;
-}
-else
-{
-    vachan.P.ajax = function (url,method) {
-        return new P((resolve,reject) => {
-            // WIP
-        });
-    };
 }
