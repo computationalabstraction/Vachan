@@ -5,6 +5,7 @@
 </a>
 
 *A cross-platfrom lightweight promise ( Promises/A+ Compliant ) library*
+Vachan works both on the Browser and Node.js for [documentation](https://vachan.archanpatkar.com) 
 
 #### `Example Usage`
 ```javascript
