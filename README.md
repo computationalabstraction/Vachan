@@ -4,4 +4,4 @@
          title="Promises/A+ 1.0 compliant" align="right" />
 </a>
 
-*A lightweight promise library which is cross-platfrom and Promises/A+ Compliant*
+*A cross-platfrom lightweight promise ( Promises/A+ Compliant ) library*
