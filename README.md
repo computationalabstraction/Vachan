@@ -5,3 +5,11 @@
 </a>
 
 *A cross-platfrom lightweight promise ( Promises/A+ Compliant ) library*
+
+#### `Example Usage`
+```javascript
+const { P } = require("vachan");
+
+P.resolve(10);
+ .then( (v) => console.log(v) );  
+```
