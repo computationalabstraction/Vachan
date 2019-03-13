@@ -1,8 +1,4 @@
 
-> vachan@1.0.0 test /Users/archanpatkar/Projects/Vachan
-> node test/spectest.js
-
-
 
   2.1.2.1: When fulfilled, a promise: must not transition to any other state.
     ✓ already-fulfilled
