@@ -4,4 +4,4 @@
          title="Promises/A+ 1.0 compliant" align="right" />
 </a>
 
-### A Promise Library ( Promises/A+ Compliant )
+*A lightweight promise library*
