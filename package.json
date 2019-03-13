@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node test/spectest.js"
+    "test": "node test/spectest.js > test/spectest-output.txt"
   },
   "devDependencies": {
     "promises-aplus-tests": "*"
