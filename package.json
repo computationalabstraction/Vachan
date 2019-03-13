@@ -1,0 +1,22 @@
+{
+  "name": "vachan",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/spectest.js"
+  },
+  "devDependencies": {
+    "promises-aplus-tests": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/archanpatkar/Vachan.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/archanpatkar/Vachan/issues"
+  },
+  "homepage": "https://github.com/archanpatkar/Vachan#readme"
+}
