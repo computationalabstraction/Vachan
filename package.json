@@ -2,7 +2,7 @@
   "name": "vachan",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "vachan.js",
   "scripts": {
     "test": "node test/spectest.js > test/spectest-output.txt"
   },
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/archanpatkar/Vachan/issues"
   },
-  "homepage": "https://github.com/archanpatkar/Vachan#readme"
+  "homepage": "https://github.com/archanpatkar/Vachan#readme",
+  "dependencies": {
+    "conciseee": "^1.0.7"
+  }
 }
