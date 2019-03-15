@@ -5,6 +5,16 @@ vachan.Rejected = Symbol("Rejected");
 vachan.Macro = Symbol("Macro");
 vachan.Micro = Symbol("Micro");
 vachan.default_type = vachan.Macro;
+if(typeof(window) === "undefined")
+{
+    let ee = require("conciseee");
+    vachan.realm = ee();
+}
+else
+{
+    document.createElement("script",{src:"https://unpkg.com/conciseee"});
+    document.addEventListener('DOMContentLoaded',()=>vachan.realm = ee(), false);
+}
 
 class P
 {
