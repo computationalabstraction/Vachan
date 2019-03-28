@@ -10,6 +10,7 @@ vachan.default_type = vachan.Macro;
 if(typeof(window) === "undefined")
 {
     vachan.realm = require("conciseee")();
+    vachan.default_type = vachan.Micro;
 }
 else
 {
@@ -243,13 +244,13 @@ function init()
                         reject(e);
                     }
                 };
-                if(this.state == vachan.Fulfilled)
+                if(this.state === vachan.Fulfilled)
                 {
                     if(s) this.queueTask(() => handler(s)(this.value));
                     else this.queueTask(() => resolve(this.value));
                     vachan.realm.emit("Preresolved",this,cp,s);
                 }
-                else if(this.state == vachan.Rejected)
+                else if(this.state === vachan.Rejected)
                 {
                     if(f) this.queueTask(() => handler(f)(this.value));
                     else this.queueTask(() => reject(this.value));
@@ -295,7 +296,6 @@ function init()
 if(typeof(window) === "undefined")
 {
     init();
-    vachan.default_type = vachan.Micro;
     module.exports.P = vachan.P;
     module.exports.Macro = vachan.Macro;
     module.exports.Micro = vachan.Micro;
