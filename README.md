@@ -4,7 +4,7 @@
          title="Promises/A+ 1.0 compliant" align="right" />
 </a>
 
-*A lightweight (2kB) cross-platfrom promise ( Promises/A+ Compliant ) library.*
+*A lightweight (2kB) cross-platform Promises/A+ spec compliant promise library.*
 Vachan works both on the Browser and Node.js for [documentation](https://vachan.archanpatkar.com) 
 
 #### `Example Usage`
