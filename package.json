@@ -2,7 +2,7 @@
   "name": "vachan",
   "version": "1.0.0",
   "description": "",
-  "main": "vachan.js",
+  "main": "vachan.min.js",
   "scripts": {
     "test": "node test/aplusspec.test.js > test/spectest-output.txt"
   },
