@@ -11,6 +11,6 @@ Vachan works both on the Browser and Node.js for [documentation](https://vachan.
 ```javascript
 const { P } = require("vachan");
 
-P.resolve(10);
+P.resolve(10)
  .then( (v) => console.log(v) );  
 ```
