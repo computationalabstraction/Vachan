@@ -5,7 +5,7 @@
 </a>
 
 *A lightweight (2kB) cross-platform Promises/A+ spec compliant promise library.*
-Vachan works both on the Browser and Node.js for [documentation](https://vachan.archanpatkar.com) 
+Vachan works both on the Browser and Node.js
 
 #### `Example Usage`
 ```javascript
