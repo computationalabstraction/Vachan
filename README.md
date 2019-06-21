@@ -10,6 +10,19 @@ A **lightweight** (2kB) cross-platform **Promises/A+ spec compliant** promise li
 ```javascript
 const { P } = require("vachan");
 
-P.resolve(10)
- .then( (v) => console.log(v) );  
+let a = [];
+
+for(let i = 0;i < 10;i++)
+{
+    a.push(
+        P.resolve(i*10)
+         .delay(.1*i)
+    );
+}
+
+P.all(a)
+ .then(vals => console.log(vals));
 ```
+#### More Details
+
+[Website](https://vachan.dev)
