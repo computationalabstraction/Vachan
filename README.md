@@ -23,6 +23,6 @@ for(let i = 0;i < 10;i++)
 P.all(a)
  .then(vals => console.log(vals));
 ```
-#### More Details
+#### `More Details`
 
 [Website](https://vachan.dev)
