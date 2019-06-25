@@ -1,4 +1,4 @@
-const v = require("../vachan");
+const v = require("../src/vachan");
 const P = v.P;
 
 let p1 = new P((resolve) => setTimeout(()=>resolve(10),100));
@@ -22,14 +22,15 @@ console.log("before");
 
 const fs = require("fs");
 
-p1 = new P( 
-    (resolve,reject) => {
-        fs.readFile("one.txt",(err,data) => {
-            if(err) reject(err);
-            else resolve(data);
-        });
-    }
-);
+let read = P.vachanify(fs.readFile);
+let write = P.vachanify(fs.writeFile);
+
+read("one.txt")
+.then(data => write("two.txt",data))
+.catch(err => console.log("Unsuccessful"));
+
+
+p1 = read("one.txt");
 
 p1.then(data => console.log("1." + data.toString()));
 p1.then(data => console.log("2." + data.toString()));
