@@ -100,7 +100,7 @@ class P
         vachan.realm.emit("Created",this);
     }
 
-    isFullfilled()
+    isFulfilled()
     {
         return this.state === vachan.Fulfilled;
     }
@@ -150,18 +150,18 @@ class P
             if(this.type === vachan.Micro)
             {
                 process.nextTick(h);
-                vachan.realm.emit("TaskQueued",vachan.Micro,h);
+                vachan.realm.emit("TaskQueued",this,vachan.Micro,h);
             }
             else if(this.type === vachan.Macro)
             {
                 setTimeout(h,0);
-                vachan.realm.emit("TaskQueued",vachan.Macro,h);
+                vachan.realm.emit("TaskQueued",this,vachan.Macro,h);
             }
         }
         else
         {
             h();
-            vachan.realm.emit("TaskQueued",vachan.Sync,h);
+            vachan.realm.emit("TaskQueued",this,vachan.Sync,h);
         } 
     }
 
