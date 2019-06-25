@@ -67,6 +67,19 @@ class P
         return new P((resolve) => setTimeout(()=>resolve(value),ms));
     }
 
+    static vachanify(functor)
+    {
+        return (...args) => {
+            return new P((resolve,reject) => {
+                if(args.length > 0)
+                {
+                    functor(...args,(err,data) => err?reject(err):resolve(data));
+                }
+                else functor((err,data) => err?reject(err):resolve(data));
+            });
+        }
+    }
+
     constructor(logic,async = true,type = vachan.default_type)
     {
         this.async = async;
