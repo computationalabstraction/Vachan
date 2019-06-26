@@ -4,7 +4,10 @@
   "description": "A lightweight (2kB) cross-platform Promises/A+ spec compliant promise library",
   "main": "vachan.min.js",
   "scripts": {
-    "test": "node test/aplusspec.test.js > test/spectest-output.txt"
+    "test": "node test/aplusspec.test.js > test/spectest-output.txt",
+    "build-browser":"",
+    "build-node":"",
+    "gzip-browser":""
   },
   "devDependencies": {
     "promises-aplus-tests": "*"
