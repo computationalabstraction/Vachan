@@ -29,7 +29,6 @@ read("one.txt")
 .then(data => write("two.txt",data))
 .catch(err => console.log("Unsuccessful"));
 
-
 p1 = read("one.txt");
 
 p1.then(data => console.log("1." + data.toString()));
