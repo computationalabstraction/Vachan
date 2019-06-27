@@ -1,7 +1,5 @@
 <script src="file:/Users/archanpatkar/Projects/Vachan/vachan.js"></script>
 <script>
-vload(
-    (P) => {
         let p1 = new P((resolve) => setTimeout(()=>resolve(10),100));
         let p2 = new P((resolve) => setTimeout(()=>resolve(20),200));
         let p3 = new P((resolve) => setTimeout(()=>resolve(30),300));
@@ -22,6 +20,4 @@ vload(
         console.log("before");
 
         p1.delay(1000).then(v => console.log("Delayed: " + v));
-    }
-);
 </script>
