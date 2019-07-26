@@ -6,7 +6,7 @@ vachan.Macro = Symbol("Macro");
 vachan.Micro = Symbol("Micro");
 vachan.Sync = Symbol("Sync");
 vachan.default_type = vachan.Micro;
-vachan.realm = require("conciseee")();
+vachan.realm = (require("conciseee"))();
 
 class P
 {
@@ -43,7 +43,7 @@ class P
     {
         if(p.length == 1 && Array.isArray(p[0])) p = p[0];
         return new P( 
-            (resolve) => {
+            (resolve,reject) => {
                 let fullilled = 0;
                 let done = false;
                 let handler = v => {
