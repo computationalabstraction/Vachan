@@ -4,7 +4,7 @@
          title="Promises/A+ 1.0 compliant" align="right" />
 </a>
 
-A **lightweight** (3kB) cross-platform **Promises/A+ spec compliant** promise library. Vachan works both on the **Browser** and **Node.js**. Vachan provides extra features over the `standard promise implementation` such as _monitoring_ the complete internal **chaining and rechaining** of promises, **queuing of callbacks** and **execution of callbacks**, **mode of execution** and other _functional_ and _utilitarian_ features. 
+A **lightweight** (2.8kB) cross-platform **Promises/A+ spec compliant** promise library. Vachan works both on the **Browser** and **Node.js**. Vachan provides extra features over the `standard promise implementation` such as _monitoring_ the complete internal **chaining and rechaining** of promises, **queuing of callbacks** and **execution of callbacks**, **mode of execution** and other _functional_ and _utilitarian_ features. 
 
 #### `Example Usage`
 ```javascript
