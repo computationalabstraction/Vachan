@@ -2,7 +2,8 @@
   "name": "vachan",
   "version": "0.0.1",
   "description": "A lightweight (3kB) cross-platform Promises/A+ spec compliant promise library",
-  "main": "dist/vachan.min.js",
+  "main": "dist/node/vachan.min.js",
+  "unpkg":"dist/browser/vachan.dist.min.js",
   "scripts": {
     "test": "node __tests__/spec.test.js && npx jest --coverage",
     "build": "npm test && node build.js"
