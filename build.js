@@ -1,7 +1,6 @@
 const fs = require("fs");
-const zlib = require('zlib');
-const gzip = zlib.createGzip();
-var babel = require("@babel/core");
+const gzip = require('zlib').createGzip();
+const babel = require("@babel/core");
 const browserify = require('browserify');
 const { P } = require("./src/vachan");
 
