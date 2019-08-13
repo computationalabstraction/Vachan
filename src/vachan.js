@@ -13,15 +13,7 @@ let recurHandler = (value,resolve,reject,cp) => {
     else if(value === cp) reject(new TypeError("It cannot return the same Promise"));
     else if(value instanceof P)
     {
-        let rcalled = false;
-        let recalled = false;
-        value.then((v) => {
-            if(!rcalled && !recalled) recurHandler(v,resolve,reject,cp);
-            rcalled = true;
-        },(e) => {
-            if(!rcalled && !recalled) reject(e);
-            recalled = true;
-        });
+        value.then(v => recurHandler(v,resolve,reject,cp),reject);
         vachan.realm.emit("Rechained",value,cp);
     }
     else if( 
