@@ -8,6 +8,73 @@ vachan.Sync = Symbol("Sync");
 vachan.default_type = vachan.Micro;
 vachan.realm = (require("conciseee"))();
 
+let recurHandler = (value,resolve,reject,cp) => {
+    if(value == null) resolve(value);
+    else if(value === cp) reject(new TypeError("It cannot return the same Promise"));
+    else if(value instanceof P)
+    {
+        let rcalled = false;
+        let recalled = false;
+        value.then((v) => {
+            if(!rcalled && !recalled) recurHandler(v,resolve,reject,cp);
+            rcalled = true;
+        },(e) => {
+            if(!rcalled && !recalled) reject(e);
+            recalled = true;
+        });
+        vachan.realm.emit("Rechained",value,cp);
+    }
+    else if( 
+            value instanceof Object || 
+            value instanceof Function || 
+            typeof(value) === "object" || 
+            typeof(value) === "function"
+        )
+    {
+        let rcalled = false;
+        let recalled = false;
+        try
+        {
+            let then = value["then"];
+            if(then !== undefined && (then instanceof Function && typeof(then) == "function"))
+            {
+                then.call(value,(v) => {
+                    if(!rcalled && !recalled) recurHandler(v,resolve,reject,cp);
+                    rcalled = true;
+                },(e) => {
+                    if(!rcalled && !recalled) reject(e);
+                    recalled = true;
+                });
+                vachan.realm.emit("Rechained",value,cp);
+            } 
+            else
+            {
+                resolve(value);
+            }
+        }
+        catch(e)
+        {
+            if(rcalled || recalled) {}
+            else reject(e);
+        }
+    }
+    else
+    {
+        resolve(value);
+    } 
+};
+
+let handler = (f,context) => (v) => { 
+    try
+    {   
+        recurHandler(f(v),context.resolve,context.reject,context.cp);
+    }
+    catch(e)
+    {
+        context.reject(e);
+    }
+};
+
 class P
 {
     static resolve(v)
@@ -169,95 +236,33 @@ class P
     {
         if(typeof(s) !== "function") s = undefined;
         if(typeof(f) !== "function") f = undefined;
-        return new P((resolve,reject,cp) => {
-            let recurHandler = (x) => {
-                if(x == null) resolve(x);
-                else if(x === cp) reject(new TypeError("It cannot return the same Promise"));
-                else if(x instanceof P)
-                {
-                    let rcalled = false;
-                    let recalled = false;
-                    x.then((v) => {
-                        if(!rcalled && !recalled) recurHandler(v);
-                        rcalled = true;
-                    },(e) => {
-                        if(!rcalled && !recalled) reject(e);
-                        recalled = true;
-                    });
-                    vachan.realm.emit("Rechained",x,cp);
-                }
-                else if( 
-                        x instanceof Object || 
-                        x instanceof Function || 
-                        typeof(x) === "object" || 
-                        typeof(x) === "function"
-                    )
-                {
-                    let rcalled = false;
-                    let recalled = false;
-                    try
-                    {
-                        let then = x["then"];
-                        if(then !== undefined && (then instanceof Function && typeof(then) == "function"))
-                        {
-                            then.call(x,(v) => {
-                                if(!rcalled && !recalled) recurHandler(v);
-                                rcalled = true;
-                            },(e) => {
-                                if(!rcalled && !recalled) reject(e);
-                                recalled = true;
-                            });
-                            vachan.realm.emit("Rechained",x,cp);
-                        } 
-                        else
-                        {
-                            resolve(x);
-                        }
-                    }
-                    catch(e)
-                    {
-                        if(rcalled || recalled) {}
-                        else reject(e);
-                    }
-                }
-                else
-                {
-                    resolve(x);
-                } 
-            };
-            let handler = (f) => (v) => { 
-                let x;
-                try
-                {   
-                    x = f(v);
-                    recurHandler(x);
-                }
-                catch(e)
-                {
-                    reject(e);
-                }
-            };
-            if(this.state === vachan.Fulfilled)
-            {
-                if(s) this.queueTask(() => handler(s)(this.value));
-                else this.queueTask(() => resolve(this.value));
-                vachan.realm.emit("Preresolved",this,cp,s);
-            }
-            else if(this.state === vachan.Rejected)
-            {
-                if(f) this.queueTask(() => handler(f)(this.value));
-                else this.queueTask(() => reject(this.value));
-                vachan.realm.emit("Prerejected",this,cp,f);
-            }
-            else
-            {
-                if(s) this.success_handler.push(handler(s));
-                else this.success_handler.push(resolve);
-                if(f) this.failure_handler.push(handler(f));
-                else this.failure_handler.push(reject);
-                vachan.realm.emit("Chained",this,cp);
-            }
-        });
+        const parasite = new P();
+        const context = {
+            resolve:v => parasite.resolve(v),
+            reject:e => parasite.reject(e),
+            cp:parasite
+        };
+        if(this.state === vachan.Fulfilled)
+        {
+            if(s) this.queueTask(() => handler(s,context)(this.value));
+            else this.queueTask(() => parasite.resolve(this.value));
+            vachan.realm.emit("Preresolved",this,parasite,s);
+        }
+        else if(this.state === vachan.Rejected)
+        {
+            if(f) this.queueTask(() => handler(f,context)(this.value));
+            else this.queueTask(() => parasite.reject(this.value));
+            vachan.realm.emit("Prerejected",this,parasite,f);
+        }
+        else
+        {
+            if(s) this.success_handler.push(handler(s,context));
+            else this.success_handler.push(context.resolve);
+            if(f) this.failure_handler.push(handler(f,context));
+            else this.failure_handler.push(context.reject);
+            vachan.realm.emit("Chained",this,parasite);
+        }
+        return parasite;
     }
 
     catch(f)
