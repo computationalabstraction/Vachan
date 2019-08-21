@@ -134,7 +134,7 @@ class P
             (resolve,reject) => {
                 let settled = 0;
                 let handler = v => ++settled && settled == p.length?resolve():0;
-                p.map(prom => prom.then(handler,handler));
+                for(let prom of p) prom.then(handler,handler);
             }
         );
     }
