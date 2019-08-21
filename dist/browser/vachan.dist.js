@@ -198,13 +198,18 @@ vachan.Sync = Symbol("Sync");
 vachan.default_type = vachan.Micro;
 vachan.realm = (require("conciseee"))();
 
-let recurHandler = (value,resolve,reject,cp) => {
-    if(value == null) resolve(value);
-    else if(value === cp) reject(new TypeError("It cannot return the same Promise"));
+let schedulers = {};
+schedulers[vachan.Macro] = h => setTimeout(h,0); 
+schedulers[vachan.Micro] = h => process.nextTick(h);
+schedulers[vachan.Sync] = h => h();
+
+let recurHandler = (value,context) => {
+    if(value == null) context.resolve(value);
+    else if(value === context.cp) context.reject(new TypeError("It cannot return the same Promise"));
     else if(value instanceof P)
     {
-        value.then(v => recurHandler(v,resolve,reject,cp),reject);
-        vachan.realm.emit("Rechained",value,cp);
+        value.then(v => recurHandler(v,context),context.reject);
+        vachan.realm.emit("Rechained",value,context.cp);
     }
     else if( 
             value instanceof Object || 
@@ -220,36 +225,36 @@ let recurHandler = (value,resolve,reject,cp) => {
             let then = value["then"];
             if(then !== undefined && (then instanceof Function && typeof(then) == "function"))
             {
-                then.call(value,(v) => {
-                    if(!rcalled && !recalled) recurHandler(v,resolve,reject,cp);
+                then.call(value,v => {
+                    if(!rcalled && !recalled) recurHandler(v,context);
                     rcalled = true;
-                },(e) => {
-                    if(!rcalled && !recalled) reject(e);
+                },e => {
+                    if(!rcalled && !recalled) context.reject(e);
                     recalled = true;
                 });
-                vachan.realm.emit("Rechained",value,cp);
+                vachan.realm.emit("Rechained",value,context.cp);
             } 
             else
             {
-                resolve(value);
+                context.resolve(value);
             }
         }
         catch(e)
         {
             if(rcalled || recalled) {}
-            else reject(e);
+            else context.reject(e);
         }
     }
     else
     {
-        resolve(value);
+        context.resolve(value);
     } 
 };
 
 let handler = (f,context) => (v) => { 
     try
     {   
-        recurHandler(f(v),context.resolve,context.reject,context.cp);
+        recurHandler(f(v),context);
     }
     catch(e)
     {
@@ -277,11 +282,7 @@ class P
                 let fullilled = 0;
                 let values = [];
                 let check = _ => fullilled == p.length?resolve(values):0;
-                let handler = v => {
-                    fullilled++;
-                    values.push(v);
-                    check();
-                }
+                let handler = v => ++fullilled && values.push(v) && check()
                 let rejHandler = e => reject(e);
                 for(let prom of p) prom.then(handler,rejHandler);
             }
@@ -293,20 +294,38 @@ class P
         if(p.length == 1 && Array.isArray(p[0])) p = p[0];
         return new P( 
             (resolve,reject) => {
-                let fullilled = 0;
                 let done = false;
-                let handler = v => {
-                    if(!done) 
-                    {
-                        done = true;
-                        resolve(v);
-                    }
-                }
+                let handler = v => !done?done = true&&resolve(v):0;
                 let rejHandler = e => reject(e);
-                for(let prom of p)
-                {
-                    prom.then(handler,rejHandler);
-                }
+                for(let prom of p) prom.then(handler,rejHandler);
+            }
+        );
+    }
+
+    static any(...p)
+    {
+        if(p.length == 1 && Array.isArray(p[0])) p = p[0];
+        return new P(
+            (resolve,reject) => {
+                let rejected = 0;
+                let done = false;
+                let errors = [];
+                let check = _ => rejected == p.length?reject(errors):0;
+                let handler = v => !done?done = true && resolve(v):0;
+                let rejHandler = e => ++rejected && errors.push(v) && check();
+                for(let prom of p) prom.then(handler,rejHandler);
+            }
+        )
+    }
+
+    static allSettled(...p)
+    {
+        if(p.length == 1 && Array.isArray(p[0])) p = p[0];
+        return new P( 
+            (resolve,reject) => {
+                let settled = 0;
+                let handler = v => ++settled && (settled == p.length?resolve():0);
+                for(let prom of p) prom.then(handler,handler);
             }
         );
     }
@@ -329,20 +348,19 @@ class P
         }
     }
 
-    constructor(logic,async = true,type = vachan.default_type)
+    constructor(executor,scheduler = vachan.default_type)
     {
-        this.async = async;
-        this.type = type;
+        this.scheduler = scheduler instanceof Function && typeof scheduler === "function"?this.custom = true||scheduler:scheduler in schedulers?scheduler:vachan.default_type;
         this.state = vachan.Pending;
         this.value = undefined;
         this.success_handler = [];
         this.failure_handler = [];
-        if(logic)
+        if(executor)
         {
-            this.logic = logic;
-            this.logic( 
-                (v) => this.resolve(v), 
-                (v) => this.reject(v),
+            this.executor = executor;
+            this.executor( 
+                v => this.resolve(v), 
+                v => this.reject(v),
                 this
             );
         }
@@ -392,26 +410,15 @@ class P
         }
     }
 
+    setScheduler(scheduler) 
+    {
+        this.scheduler = scheduler instanceof Function && typeof scheduler === "function"?this.custom = true||scheduler:scheduler in schedulers?scheduler:vachan.default_type;
+    }
+
     queueTask(h)
     {
-        if(this.async)
-        {
-            if(this.type === vachan.Micro)
-            {
-                process.nextTick(h);
-                vachan.realm.emit("TaskQueued",this,vachan.Micro,h);
-            }
-            else if(this.type === vachan.Macro)
-            {
-                setTimeout(h,0);
-                vachan.realm.emit("TaskQueued",this,vachan.Macro,h);
-            }
-        }
-        else
-        {
-            h();
-            vachan.realm.emit("TaskQueued",this,vachan.Sync,h);
-        } 
+        this.custom?this.scheduler(h):schedulers[this.scheduler](h);
+        vachan.realm.emit("TaskQueued",this,this.scheduler,h);
     }
 
     then(s,f)
