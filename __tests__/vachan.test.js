@@ -37,6 +37,32 @@ test('P.race', () => {
     return Promise.all(resolves);
 });
 
+test('P.any', () => {
+    let resolves = [];
+    let p1 = P.delay(10,100);
+    let p2 = P.delay(20,200);
+    let p3 = P.delay(30,300);
+    resolves.push(expect(P.any(p1,p2,p3)).resolves.toBe(10));
+    p1 = new P((resolve,reject) => setTimeout(()=>reject("Failed"),100));
+    p2 = P.delay(20,200);
+    p3 = P.delay(30,300);
+    resolves.push(expect(P.any(p1,p2,p3)).resolves.toBe(20))
+    return Promise.all(resolves);
+});
+
+test('P.allSettled', () => {
+    let resolves = [];
+    let p1 = P.delay(10,100);
+    let p2 = P.delay(20,200);
+    let p3 = P.delay(30,300);
+    resolves.push(expect(P.allSettled(p1,p2,p3)).resolves);
+    p1 = new P((resolve,reject) => setTimeout(()=>reject("Failed"),100));
+    p2 = P.delay(20,200);
+    p3 = P.delay(30,300);
+    resolves.push(expect(P.allSettled(p1,p2,p3)).resolves)
+    return Promise.all(resolves);
+});
+
 test('P.resolve', () => {
     let resolves = [];
     resolves.push(expect(P.resolve(10)).resolves.toBe(10))

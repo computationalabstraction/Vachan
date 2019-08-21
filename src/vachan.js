@@ -112,7 +112,8 @@ class P
         );
     }
 
-    static any(...p){
+    static any(...p)
+    {
         if(p.length == 1 && Array.isArray(p[0])) p = p[0];
         return new P(
             (resolve,reject) => {
@@ -120,8 +121,8 @@ class P
                 let done = false;
                 let errors = [];
                 let check = _ => rejected == p.length?reject(errors):0;
-                let handler = v => !done?done = true || resolve(v):0;
-                let rejHandler = e => ++rejected && errors.push(v) || check();
+                let handler = v => !done?done = true && resolve(v):0;
+                let rejHandler = e => ++rejected && errors.push(v) && check();
                 for(let prom of p) prom.then(handler,rejHandler);
             }
         )
@@ -133,7 +134,7 @@ class P
         return new P( 
             (resolve,reject) => {
                 let settled = 0;
-                let handler = v => ++settled && settled == p.length?resolve():0;
+                let handler = v => ++settled && (settled == p.length?resolve():0);
                 for(let prom of p) prom.then(handler,handler);
             }
         );
