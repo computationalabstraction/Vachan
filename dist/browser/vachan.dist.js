@@ -413,6 +413,7 @@ class P
     setScheduler(scheduler) 
     {
         this.scheduler = scheduler instanceof Function && typeof scheduler === "function"?this.custom = true||scheduler:scheduler in schedulers?scheduler:vachan.default_type;
+        return this;
     }
 
     queueTask(h)
