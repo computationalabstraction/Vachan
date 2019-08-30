@@ -24,7 +24,7 @@ P.all(a)
  .then(vals => console.log(vals));
 ```
 
-#### `Installation`
+# Installation
 
 ### Node
 ```
@@ -35,6 +35,6 @@ npm i vachan
 <script src="https://unpkg.com/vachan"></script>
 ```
 
-#### `Documentation`
+# Documentation
 
 [Website](https://vachan.dev)
