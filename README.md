@@ -24,8 +24,7 @@ P.all(a)
  .then(vals => console.log(vals));
 ```
 
-# Installation
-<hr></hr>
+#### `Installation`
 
 ### Node
 ```
