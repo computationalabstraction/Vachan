@@ -23,6 +23,18 @@ for(let i = 0;i < 10;i++)
 P.all(a)
  .then(vals => console.log(vals));
 ```
-#### `More Details`
+
+## Installation
+
+### Node
+```
+npm i vachan
+```
+### Browser
+```
+<script src="https://unpkg.com/vachan"></script>
+```
+
+## Documentation
 
 [Website](https://vachan.dev)
