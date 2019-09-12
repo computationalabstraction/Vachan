@@ -174,7 +174,7 @@ class P
                 this
             );
         }
-        vachan.realm.emit("Created",this);
+        vachan.realm.emit("Created",{promise:this});
     }
 
     isFulfilled()
@@ -202,7 +202,7 @@ class P
             {
                 this.queueTask(() => handler(v));
             }
-            vachan.realm.emit("Fulfilled",this);
+            vachan.realm.emit("Fulfilled",{promise:this});
         }
     }
 
@@ -216,7 +216,7 @@ class P
             {
                 this.queueTask(() => handler(e));
             }
-            vachan.realm.emit("Rejected",this);
+            vachan.realm.emit("Rejected",{promise:this});
         }
     }
 
@@ -229,7 +229,7 @@ class P
     queueTask(h)
     {
         this.custom?this.scheduler(h):schedulers[this.scheduler](h);
-        vachan.realm.emit("TaskQueued",this,this.scheduler,h);
+        vachan.realm.emit("TaskQueued",{promise:this,scheduler:this.scheduler,handler:h});
     }
 
     then(s,f)
@@ -246,13 +246,13 @@ class P
         {
             if(s) this.queueTask(() => handler(s,context)(this.value));
             else this.queueTask(() => parasite.resolve(this.value));
-            vachan.realm.emit("Preresolved",this,parasite,s);
+            vachan.realm.emit("Preresolved",{substrate:this,parasite:parasite,handler:s});
         }
         else if(this.state === vachan.Rejected)
         {
             if(f) this.queueTask(() => handler(f,context)(this.value));
             else this.queueTask(() => parasite.reject(this.value));
-            vachan.realm.emit("Prerejected",this,parasite,f);
+            vachan.realm.emit("Prerejected",{substrate:this,parasite:parasite,handler:f});
         }
         else
         {
@@ -260,7 +260,7 @@ class P
             else this.success_handler.push(context.resolve);
             if(f) this.failure_handler.push(handler(f,context));
             else this.failure_handler.push(context.reject);
-            vachan.realm.emit("Chained",this,parasite);
+            vachan.realm.emit("Chained",{substrate:this,parasite:parasite});
         }
         return parasite;
     }
