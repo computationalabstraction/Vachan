@@ -260,6 +260,7 @@ let handler = (f,context) => (v) => {
     {
         context.reject(e);
     }
+    vachan.realm.emit("HandlerExecuted",{promise:context.cp,handler:f,timestamp:new Date()});
 };
 
 class P
