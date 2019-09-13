@@ -230,7 +230,7 @@ class P
     queueTask(h)
     {
         this.custom?this.scheduler(h):schedulers[this.scheduler](h);
-        vachan.realm.emit("TaskQueued",{promise:this,scheduler:this.scheduler,handler:h,timestamp:new Date()});
+        vachan.realm.emit("HandlerQueued",{promise:this,scheduler:this.scheduler,handler:h,timestamp:new Date()});
     }
 
     then(s,f)
