@@ -364,7 +364,7 @@ class P
                 this
             );
         }
-        vachan.realm.emit("Created",{promise:this,time:new Date()});
+        vachan.realm.emit("Created",{promise:this,timestamp:new Date()});
     }
 
     isFulfilled()
@@ -392,7 +392,7 @@ class P
             {
                 this.queueTask(() => handler(v));
             }
-            vachan.realm.emit("Fulfilled",{promise:this,time:new Date()});
+            vachan.realm.emit("Fulfilled",{promise:this,timestamp:new Date()});
         }
     }
 
@@ -406,7 +406,7 @@ class P
             {
                 this.queueTask(() => handler(e));
             }
-            vachan.realm.emit("Rejected",{promise:this,time:new Date()});
+            vachan.realm.emit("Rejected",{promise:this,timestamp:new Date()});
         }
     }
 
@@ -419,7 +419,7 @@ class P
     queueTask(h)
     {
         this.custom?this.scheduler(h):schedulers[this.scheduler](h);
-        vachan.realm.emit("TaskQueued",{promise:this,scheduler:this.scheduler,handler:h,time:new Date()});
+        vachan.realm.emit("TaskQueued",{promise:this,scheduler:this.scheduler,handler:h,timestamp:new Date()});
     }
 
     then(s,f)
@@ -436,13 +436,13 @@ class P
         {
             if(s) this.queueTask(() => handler(s,context)(this.value));
             else this.queueTask(() => parasite.resolve(this.value));
-            vachan.realm.emit("Preresolved",{substrate:this,parasite:parasite,handler:s,time:new Date()});
+            vachan.realm.emit("Preresolved",{substrate:this,parasite:parasite,handler:s,timestamp:new Date()});
         }
         else if(this.state === vachan.Rejected)
         {
             if(f) this.queueTask(() => handler(f,context)(this.value));
             else this.queueTask(() => parasite.reject(this.value));
-            vachan.realm.emit("Prerejected",{substrate:this,parasite:parasite,handler:f,time:new Date()});
+            vachan.realm.emit("Prerejected",{substrate:this,parasite:parasite,handler:f,timestamp:new Date()});
         }
         else
         {
@@ -450,7 +450,7 @@ class P
             else this.success_handler.push(context.resolve);
             if(f) this.failure_handler.push(handler(f,context));
             else this.failure_handler.push(context.reject);
-            vachan.realm.emit("Chained",{substrate:this,parasite:parasite,time:new Date()});
+            vachan.realm.emit("Chained",{substrate:this,parasite:parasite,timestamp:new Date()});
         }
         return parasite;
     }

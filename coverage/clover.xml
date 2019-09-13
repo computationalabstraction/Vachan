@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1568350509617" clover="3.2.0">
-  <project timestamp="1568350509617" name="All files">
+<coverage generated="1568352541459" clover="3.2.0">
+  <project timestamp="1568352541460" name="All files">
     <metrics statements="135" coveredstatements="118" conditionals="114" coveredconditionals="65" methods="65" coveredmethods="53" elements="314" coveredelements="236" complexity="0" loc="135" ncloc="135" packages="1" files="1" classes="1"/>
     <file name="vachan.js" path="/Users/kavitapatkar/ArchanPatkar/Projects/Vachan/src/vachan.js">
       <metrics statements="135" coveredstatements="118" conditionals="114" coveredconditionals="65" methods="65" coveredmethods="53"/>
