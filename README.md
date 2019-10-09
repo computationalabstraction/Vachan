@@ -1,4 +1,7 @@
 # <img src="vachan.png"/>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Actions Status](https://github.com/archanpatkar/tvl/workflows/build/badge.svg)](https://github.com/archanpatkar/tvl/actions?workflow=build)
+
 <a href="https://promisesaplus.com/">
     <img src="https://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
          title="Promises/A+ 1.0 compliant" align="right" />
