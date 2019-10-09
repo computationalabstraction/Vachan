@@ -201,6 +201,8 @@ vachan.realm = (require("conciseee"))();
 let schedulers = {};
 schedulers[vachan.Macro] = h => setTimeout(h,0); 
 schedulers[vachan.Micro] = h => process.nextTick(h);
+
+// Only for debugging
 schedulers[vachan.Sync] = h => h();
 
 let recurHandler = (value,context) => {
@@ -241,9 +243,8 @@ let recurHandler = (value,context) => {
         }
         catch(e)
         {
-            if(rcalled || recalled) {}
-            else context.reject(e);
-        }
+            if(!rcalled && !recalled) context.reject(e)
+        } 
     }
     else
     {
@@ -351,21 +352,34 @@ class P
 
     constructor(executor,scheduler = vachan.default_type)
     {
-        this.scheduler = scheduler instanceof Function && typeof scheduler === "function"?this.custom = true||scheduler:scheduler in schedulers?scheduler:vachan.default_type;
+        this.setScheduler(scheduler);
         this.state = vachan.Pending;
         this.value = undefined;
         this.success_handler = [];
         this.failure_handler = [];
+        vachan.realm.emit("Created",{promise:this,timestamp:new Date()});
         if(executor)
         {
             this.executor = executor;
-            this.executor( 
-                v => this.resolve(v), 
-                v => this.reject(v),
-                this
-            );
+            try
+            {   
+                const context = {
+                    resolve:v => this.resolve(v),
+                    reject:e => this.reject(e),
+                    cp:this
+                };
+                this.executor( 
+                    v => recurHandler(v,context), 
+                    context.reject,
+                    this
+                );
+            }
+            catch(e)
+            {
+                context.reject(e);
+            }
+            vachan.realm.emit("ExecutorExecuted",{promise:this,executor:this.executor,timestamp:new Date()});
         }
-        vachan.realm.emit("Created",{promise:this,timestamp:new Date()});
     }
 
     isFulfilled()
@@ -454,6 +468,30 @@ class P
             vachan.realm.emit("Chained",{substrate:this,parasite:parasite,timestamp:new Date()});
         }
         return parasite;
+    }
+
+    fork(...handlers) 
+    {
+        return P.all(
+            handlers.map(
+                h => h instanceof Function?
+                    this.then(h) :
+                    this.then(h[0],h[1])
+            )
+        ); 
+    }
+
+    join(...promises) 
+    {
+        return P.all(this,...promises);
+    }
+
+    tap(s,f) 
+    {
+        return this.then(
+            v => {s?s(v):0;return this;},
+            e => {f?f(e):0;return this;}
+        );
     }
 
     catch(f)
