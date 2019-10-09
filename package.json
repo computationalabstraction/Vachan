@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A lightweight (3kB) cross-platform Promises/A+ spec compliant promise library",
   "main": "dist/node/vachan.min.js",
-  "unpkg":"dist/browser/vachan.dist.min.js",
+  "unpkg": "dist/browser/vachan.dist.min.js",
   "scripts": {
     "test": "node __tests__/spec.test.js && npx jest --coverage",
     "build": "node build.js"
@@ -13,7 +13,7 @@
     "@babel/preset-env": "^7.5.5",
     "babel-preset-minify": "^0.5.0",
     "browserify": "^16.3.0",
-    "jest": "^24.8.0",
+    "jest": "^24.9.0",
     "promises-aplus-tests": "*"
   },
   "repository": {
