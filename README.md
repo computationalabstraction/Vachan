@@ -1,6 +1,6 @@
 # <img src="vachan.png"/>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Actions Status](https://github.com/archanpatkar/tvl/workflows/build/badge.svg)](https://github.com/archanpatkar/tvl/actions?workflow=build)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Actions Status](https://github.com/archanpatkar/vachan/workflows/build/badge.svg)](https://github.com/archanpatkar/vachan/actions?workflow=build)
 
 <a href="https://promisesaplus.com/">
     <img src="https://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
