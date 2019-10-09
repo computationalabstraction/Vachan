@@ -230,7 +230,6 @@ test('P.prototype.join', () => {
         P.resolve("hello").delay(100)
         .join(P.resolve({x:10,y:20}).delay(200))
     ).resolves.toEqual(["hello",{x:10,y:20}]));
-    // resolves.push(expect(P.resolve({x:10,y:20}).delay(100)).resolves.toEqual({x:10,y:20}))
     return P.all(resolves);
 });
 
@@ -239,11 +238,6 @@ test('P.prototype.fork', () => {
     resolves.push(expect(
         P.resolve(10).fork(v=>v+1,v=>v+2,v=>v+3,v=>v+4)
     ).resolves.toEqual([11,12,13,14]));
-    // resolves.push(expect(
-    //     P.resolve("hello").delay(100)
-    //     .join(P.resolve({x:10,y:20}).delay(200))
-    // ).resolves.toEqual(["hello",{x:10,y:20}]));
-    // resolves.push(expect(P.resolve({x:10,y:20}).delay(100)).resolves.toEqual({x:10,y:20}))
     return P.all(resolves);
 });
 
