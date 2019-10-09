@@ -11,6 +11,8 @@ vachan.realm = (require("conciseee"))();
 let schedulers = {};
 schedulers[vachan.Macro] = h => setTimeout(h,0); 
 schedulers[vachan.Micro] = h => process.nextTick(h);
+
+// Only for debugging
 schedulers[vachan.Sync] = h => h();
 
 let recurHandler = (value,context) => {
@@ -297,8 +299,8 @@ class P
     tap(s,f) 
     {
         return this.then(
-            v => {s?s(v):0;return v;},
-            e => {f?f(v):0;return e;}
+            v => {s?s(v):0;return this;},
+            e => {f?f(e):0;return this;}
         );
     }
 
