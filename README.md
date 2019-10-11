@@ -38,6 +38,6 @@ npm i vachan
 <script src="https://unpkg.com/vachan"></script>
 ```
 
-## Documentation
+## Usage
 
-[Website](https://vachan.dev)
+[Documentation](https://vachan.archan.io)
