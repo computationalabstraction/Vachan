@@ -313,7 +313,7 @@ class P
                 let errors = [];
                 let check = _ => rejected == p.length?reject(errors):0;
                 let handler = v => !done?done = true && resolve(v):0;
-                let rejHandler = e => ++rejected && errors.push(v) && check();
+                let rejHandler = e => ++rejected && errors.push(e) && check();
                 for(let prom of p) prom.then(handler,rejHandler);
             }
         )
@@ -360,13 +360,13 @@ class P
         if(executor)
         {
             this.executor = executor;
+            const context = {
+                resolve:v => this.resolve(v),
+                reject:e => this.reject(e),
+                cp:this
+            };
             try
             {   
-                const context = {
-                    resolve:v => this.resolve(v),
-                    reject:e => this.reject(e),
-                    cp:this
-                };
                 this.executor( 
                     v => recurHandler(v,context), 
                     context.reject,
