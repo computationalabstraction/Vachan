@@ -78,6 +78,7 @@ test('P.any', () => {
     p2 = P.delay(20,200);
     p3 = P.delay(30,300);
     resolves.push(expect(P.any([p1,p2,p3])).resolves.toBe(20));
+    resolves.push(expect(P.any([P.reject(10),P.reject(20)])).rejects.toEqual([10,20]));
 
     // Macrotask
     p1 = P.delay(10,100).setScheduler(v.Macro);
@@ -252,5 +253,13 @@ test('Edge Cases', () => {
     resolves.push(expect(P.reject(10).then()).rejects.toBe(10));
     resolves.push(expect(P.resolve(10).delay(100).then()).resolves.toBe(10));
     resolves.push(expect(P.reject(10).delay(100).then()).rejects.toBe(10));
+    resolves.push(expect(new P(()=>{throw new Error("Error case");})).rejects.toThrow(/Error case/));
+    resolves.push(expect(P.resolve({
+        then() {
+            throw new Error("Testing Edge Case in recurhandler");
+        }
+    })).rejects.toThrow("Testing Edge Case in recurhandler"));
+    resolves.push(expect(P.vachanify((cb)=> cb(null,null))().then(()=>{})).resolves.toBe(undefined));
+    resolves.push(expect(P.resolve(10).then(()=>{throw new Error();})).rejects.toThrow());
     return P.all(resolves);
 });
