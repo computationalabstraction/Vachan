@@ -6,12 +6,11 @@ vachan.Macro = Symbol("Macro");
 vachan.Micro = Symbol("Micro");
 vachan.Sync = Symbol("Sync");
 vachan.default_type = vachan.Micro;
-vachan.realm = (require("conciseee"))();
+vachan.realm = require("conciseee")();
 
 let schedulers = {};
 schedulers[vachan.Macro] = h => setTimeout(h,0); 
 schedulers[vachan.Micro] = h => process.nextTick(h);
-
 // Only for debugging
 schedulers[vachan.Sync] = h => h();
 
@@ -328,6 +327,4 @@ class P
 }
 
 vachan.P = P;
-module.exports.P = vachan.P;
-module.exports.Macro = vachan.Macro;
-module.exports.Micro = vachan.Micro;
+module.exports = vachan;

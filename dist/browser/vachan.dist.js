@@ -1,5 +1,5 @@
-(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-function ee(){let e={"*":[]},f=[];return{emit:(n,...o)=>{e[n]&&e[n].forEach(e=>e(...o)),f.forEach(e=>null==n.match(e.p)?0:e.f(...o)),"*"!=n&&e["*"].forEach(e=>e(n,...o))},on:(n,o)=>n instanceof RegExp?f.push({p:n,f:o}):e[n]?e[n].push(o):(e[n]=[]).push(o),off:(n,o)=>{let t;n instanceof RegExp?(f.forEach(e=>n.toString()==e.p.toString()&&o==e.f?t=e:0)||t)&&delete f[f.indexOf(t)]:e[n]&&((e[n].forEach(e=>o==e?t=e:0)||t)&&delete e[n][e[n].indexOf(t)])}}}"undefined"==typeof window&&(module.exports=ee);
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.vachan = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+function ee(){let a={"*":[]},b=[];return{emit(c,...d){return a[c]?a[c].forEach(a=>a(...d)):0,b.forEach(a=>null==c.match(a.p)?0:a.f(...d)),"*"==c?0:a["*"].forEach(a=>a(c,...d)),this},on(c,d){return c instanceof RegExp?b.push({p:c,f:d}):a[c]?a[c].push(d):(a[c]=[]).push(d),this},off(c,d){let e;return c instanceof RegExp?b.forEach(a=>c.toString()==a.p.toString()&&d==a.f?e=a:0)||e?delete b[b.indexOf(e)]:0:a[c]?a[c].forEach(a=>d==a?e=a:0)||e?delete a[c][a[c].indexOf(e)]:0:0,this}}}"undefined"!=typeof module&&(module.exports=ee);
 },{}],2:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
@@ -196,12 +196,11 @@ vachan.Macro = Symbol("Macro");
 vachan.Micro = Symbol("Micro");
 vachan.Sync = Symbol("Sync");
 vachan.default_type = vachan.Micro;
-vachan.realm = (require("conciseee"))();
+vachan.realm = require("conciseee")();
 
 let schedulers = {};
 schedulers[vachan.Macro] = h => setTimeout(h,0); 
 schedulers[vachan.Micro] = h => process.nextTick(h);
-
 // Only for debugging
 schedulers[vachan.Sync] = h => h();
 
@@ -518,8 +517,7 @@ class P
 }
 
 vachan.P = P;
-module.exports.P = vachan.P;
-module.exports.Macro = vachan.Macro;
-module.exports.Micro = vachan.Micro;
+module.exports = vachan;
 }).call(this,require('_process'))
-},{"_process":2,"conciseee":1}]},{},[3]);
+},{"_process":2,"conciseee":1}]},{},[3])(3)
+});

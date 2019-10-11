@@ -13,7 +13,7 @@ transform(`${__dirname}/src/vachan.js`,{"presets":["@babel/preset-env","minify"]
 })
 
 // Browser dist
-browserify([`${__dirname}/src/vachan.js`])
+browserify([`${__dirname}/src/vachan.js`], {standalone: 'vachan'})
 .bundle()
 .pipe(fs.createWriteStream(`${__dirname}/dist/browser/vachan.dist.js`))
 .on("finish", _ => {

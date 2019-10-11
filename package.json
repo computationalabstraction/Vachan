@@ -12,7 +12,7 @@
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "babel-preset-minify": "^0.5.0",
-    "browserify": "^16.3.0",
+    "browserify": "^16.5.0",
     "jest": "^24.9.0",
     "promises-aplus-tests": "*"
   },
@@ -27,6 +27,6 @@
   },
   "homepage": "https://github.com/archanpatkar/Vachan#readme",
   "dependencies": {
-    "conciseee": "^1.0.7"
+    "conciseee": "^1.1.0"
   }
 }
