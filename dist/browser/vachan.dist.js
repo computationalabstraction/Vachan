@@ -360,13 +360,13 @@ class P
         if(executor)
         {
             this.executor = executor;
-            const context = {
-                resolve:v => this.resolve(v),
-                reject:e => this.reject(e),
-                cp:this
-            };
             try
             {   
+                const context = {
+                    resolve:v => this.resolve(v),
+                    reject:e => this.reject(e),
+                    cp:this
+                };
                 this.executor( 
                     v => recurHandler(v,context), 
                     context.reject,
@@ -375,7 +375,7 @@ class P
             }
             catch(e)
             {
-                context.reject(e);
+                this.reject(e);
             }
             vachan.realm.emit("ExecutorExecuted",{promise:this,executor:this.executor,timestamp:new Date()});
         }
