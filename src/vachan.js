@@ -15,6 +15,7 @@ Promise -> Pending -> resolve() -> Fulfilled < -
 
 State Table Representation:
 
+      Initial State is always Pending
  -------------------------------------------
 |   Input   |   Current State   |  Outcome  |
  -------------------------------------------
