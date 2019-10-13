@@ -194,16 +194,60 @@ Library Object
 const vachan = {};
 
 /*
-Promise States
+Promise States -
+
+Diagrammatic Representation:
+
+Promise -> Pending -> resolve() -> Fulfilled < -
+              |                                 |   Either State it is
+              v                                 |        Resolved
+           reject() -> Rejected              < -
+
+State Table Representation:
+
+      Initial State is always Pending
+ -------------------------------------------
+|   Input   |   Current State   |  Outcome  |
+ -------------------------------------------
+|  resolve  |      Pending      | Fulfilled |
+ -------------------------------------------
+|  reject   |      Pending      | Rejected  |
+ -------------------------------------------
+|  resolve  |     Fulfilled     |   NOP     |
+ -------------------------------------------
+|  resolve  |     Rejected      |   NOP     |
+ -------------------------------------------
+|  reject   |     Fulfilled     |   NOP     |
+ -------------------------------------------
+|  reject   |     Rejected      |   NOP     |
+ -------------------------------------------
 */
 vachan.Pending = Symbol("Pending");
 vachan.Fulfilled = Symbol("Fulfilled");
 vachan.Rejected = Symbol("Rejected");
 
 /*
+TODO: Next Release
+
+Promise Internal Symbols - 
+These symbols should not be visible to the consumer directly.
+This should make it difficult (but not impossible) to access internal 
+promise data and operations from outside can be achieved
+but would need reverse engineering using something like 
+Object.getOwnPropertySymbols() or Reflect API
+
+let resolve = Symbol("Resolve");
+let reject = Symbol("Reject");
+let success_handler = Symbol("Success Handler");
+let failure_handler = Symbol("Failure Handler");
+let state = Symbol("State");
+let value = Symbol("Value");
+*/
+
+/*
 Predefined Schedulers or Modes -
-Macro Scheduler/Mode: This mode can be implementated in many ways but
-                      majorly either through setTimeout or setImmdiate
+Macro Scheduler/Mode: This mode can be implementated either through 
+                      setTimeout or setImmdiate
 Micro Scheduler/Mode: This mode can be implementated only in one way on 
                       Node.js and it is through process.nextTick
 Sync Scheduler/Mode:  This mode will call the next handler synchronously 
@@ -228,12 +272,12 @@ vachan.schedulers[vachan.Micro] = h => process.nextTick(h);
 /* 
 Only for debugging or to be used in a very urgent scenario where the 
 consequent task/s has/have to be done directly after the async task completes 
-and cannot wait for excution through async schedulling(next tick)
+and cannot wait for excution through async scheduling
 */
 vachan.schedulers[vachan.Sync] = h => h();
 
 /*
-Event Portal:
+Event Portal -
 The default implementation is provided using conciseee package but 
 any object can be used provided it has an emit method
 
@@ -243,7 +287,28 @@ an emit method defined
 vachan.realm = require("conciseee")();
 
 /*
-Adapter function to the event portal:
+TODO: Next Release
+
+Events Defintions -
+Events which will be raised on the Event Portal
+
+vachan.events = {};
+vachan.events.Created = Symbol("Created");
+vachan.events.ExecutorExecuted = Symbol("ExecutorExecuted");
+vachan.events.ExecutorThrows = Symbol("ExecutorThrows");
+vachan.events.Fulfilled = Symbol("Fulfilled");
+vachan.events.Rejected = Symbol("Rejected");
+vachan.events.Preresolved = Symbol("Preresolved");
+vachan.events.Prerejected = Symbol("Prerejected");
+vachan.events.Chained = Symbol("Chained");
+vachan.events.HandlerQueued = Symbol("HandlerQueued");
+vachan.events.HandlerExecuted = Symbol("HandlerExecuted");
+vachan.events.Rechained = Symbol("Rechained");
+*/
+
+
+/*
+Adapter function to the event portal -
 This function is used for loose coupling between the portal and the 
 internal promise code as the implementation for the portal can be swapped
 */
@@ -310,7 +375,7 @@ Promise class
 */
 class P {
     /* 
-        Creating a presolved Promise
+        Creating a preresolved Promise
     */
     static resolve(v) {
         return new P((resolve) => resolve(v));
@@ -410,7 +475,7 @@ class P {
         this.value = undefined;
         this.success_handler = [];
         this.failure_handler = [];
-        vachan.realm.emit("Created", { promise: this, timestamp: new Date() });
+        vachan.raiseEvent("Created", { promise: this });
         if (executor) {
             this.executor = executor;
             try {
@@ -424,11 +489,13 @@ class P {
                     context.reject,
                     this
                 );
+                vachan.raiseEvent("ExecutorExecuted", { promise: this, executor: this.executor });
             }
             catch (e) {
                 this.reject(e);
+                vachan.raiseEvent("ExecutorExecuted", { promise: this, executor: this.executor });
+                vachan.raiseEvent("ExecutorThrows", { promise: this, executor: this.executor });
             }
-            vachan.raiseEvent("ExecutorExecuted", { promise: this, executor: this.executor });
         }
     }
 
