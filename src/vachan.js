@@ -4,7 +4,32 @@ Library Object
 const vachan = {};
 
 /*
-Promise States
+Promise States -
+
+Diagrammatic Representation:
+
+Promise -> Pending -> resolve() -> Fulfilled < -
+              |                                 |   Either State it is
+              v                                 |        Resolved
+           reject() -> Rejected              < -
+
+State Table Representation:
+
+ -------------------------------------------
+|   Input   |   Current State   |  Outcome  |
+ -------------------------------------------
+|  resolve  |      Pending      | Fulfilled |
+ -------------------------------------------
+|  reject   |      Pending      | Rejected  |
+ -------------------------------------------
+|  resolve  |     Fulfilled     |   NOP     |
+ -------------------------------------------
+|  resolve  |     Rejected      |   NOP     |
+ -------------------------------------------
+|  reject   |     Fulfilled     |   NOP     |
+ -------------------------------------------
+|  reject   |     Rejected      |   NOP     |
+ -------------------------------------------
 */
 vachan.Pending = Symbol("Pending");
 vachan.Fulfilled = Symbol("Fulfilled");
@@ -14,10 +39,11 @@ vachan.Rejected = Symbol("Rejected");
 TODO: Next Release
 
 Promise Internal Symbols - 
-These symbols should not be visible to the outsider directly.
+These symbols should not be visible to the consumer directly.
 This should make it difficult (but not impossible) to access internal 
-promise data and operations from outside but would need reverse 
-engineering 
+promise data and operations from outside can be achieved
+but would need reverse engineering using something like 
+Object.getOwnPropertySymbols() or Reflect API
 
 let resolve = Symbol("Resolve");
 let reject = Symbol("Reject");
@@ -29,8 +55,8 @@ let value = Symbol("Value");
 
 /*
 Predefined Schedulers or Modes -
-Macro Scheduler/Mode: This mode can be implementated in many ways but
-                      majorly either through setTimeout or setImmdiate
+Macro Scheduler/Mode: This mode can be implementated either through 
+                      setTimeout or setImmdiate
 Micro Scheduler/Mode: This mode can be implementated only in one way on 
                       Node.js and it is through process.nextTick
 Sync Scheduler/Mode:  This mode will call the next handler synchronously 
