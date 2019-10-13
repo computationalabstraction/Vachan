@@ -1,5 +1,4 @@
 const fs = require("fs");
-const promisesAplusTests = require("promises-aplus-tests");
 const v = require("../src/vachan");
 const P = v.P;
 
