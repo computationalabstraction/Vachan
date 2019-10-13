@@ -8,10 +8,10 @@ Promise States -
 
 Diagrammatic Representation:
 
-Promise -> Pending -> resolve() -> Fulfilled < -
-              |                                 |   Either State it is
-              v                                 |        Resolved
-           reject() -> Rejected <- - - - - - - -
+Promise -> Pending -> resolve() -> Fulfilled <- -
+              |                                  |   Either State it is
+              v                                  |        Resolved
+           reject() -> Rejected <- - - - - - - - 
 
 State Table Representation:
 
