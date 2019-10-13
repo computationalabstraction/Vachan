@@ -55,7 +55,7 @@ vachan.schedulers[vachan.Micro] = h => process.nextTick(h);
 /* 
 Only for debugging or to be used in a very urgent scenario where the 
 consequent task/s has/have to be done directly after the async task completes 
-and cannot wait for excution through async schedulling(next tick)
+and cannot wait for excution through async scheduling
 */
 vachan.schedulers[vachan.Sync] = h => h();
 
@@ -70,8 +70,11 @@ an emit method defined
 vachan.realm = require("conciseee")();
 
 /*
+TODO: Next Release
+
+Events Defintions -
 Events which will be raised on the Event Portal
-*/
+
 vachan.events = {};
 vachan.events.Created = Symbol("Created");
 vachan.events.ExecutorExecuted = Symbol("ExecutorExecuted");
@@ -84,6 +87,8 @@ vachan.events.Chained = Symbol("Chained");
 vachan.events.HandlerQueued = Symbol("HandlerQueued");
 vachan.events.HandlerExecuted = Symbol("HandlerExecuted");
 vachan.events.Rechained = Symbol("Rechained");
+*/
+
 
 /*
 Adapter function to the event portal -
