@@ -120,7 +120,7 @@ Promise class
 */
 class P {
     /* 
-        Creating a presolved Promise
+        Creating a preresolved Promise
     */
     static resolve(v) {
         return new P((resolve) => resolve(v));
