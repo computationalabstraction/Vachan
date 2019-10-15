@@ -89,7 +89,7 @@ vachan.schedulers[vachan.Sync] = h => h();
 /*
 Event Portal -
 The default implementation is provided using conciseee package but 
-any object can be used provided it has an emit method
+any object can be used provided it has emit and on methods
 
 This implementation is swappable by any object which has 
 an emit method defined
@@ -238,6 +238,14 @@ class P {
         );
     }
 
+    /* 
+        Accepts an array or varargs of promises and returns a 
+        promise which waits for any one promise of all the 
+        promises (any one successful fulfillment) sent to get
+        fulfilled and then fulfill the consequent promise or 
+        wait for all the promises to get rejected and reject 
+        the consequent promise with array of reasons
+    */
     static any(...p) {
         if (p.length == 1 && Array.isArray(p[0])) p = p[0];
         return new P(
@@ -253,6 +261,11 @@ class P {
         )
     }
 
+    /* 
+        Accepts an array or varargs of promises and returns a 
+        promise which waits for all of them to get resolved and 
+        then resolves the consequent promise but with no values
+    */
     static allSettled(...p) {
         if (p.length == 1 && Array.isArray(p[0])) p = p[0];
         return new P(
@@ -264,10 +277,18 @@ class P {
         );
     }
 
+    /* 
+       Creates and returns a new promise but delays its resolution with
+       the passed value for the given milleseconds
+    */
     static delay(value, ms) {
         return new P((resolve) => setTimeout(() => resolve(value), ms));
     }
 
+    /* 
+       Promisifys any Node.js style callback based function which accepts 
+       a callback with the given signature: (err,data) => {}
+    */
     static vachanify(functor) {
         return (...args) => {
             return new P((resolve, reject) => {
