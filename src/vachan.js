@@ -75,6 +75,11 @@ Micro: This has been implemented using process.nextTick(function)
 Sync: This will directly call the passed function
 
 These scheduler implmentations are swappable but not recommended
+
+NOTE: 
+On Node.js there is direct support for process.nextTick but 
+on the browser the implementation will use the proccess.nextTick 
+polyfill by Browserify
 */
 vachan.schedulers = {};
 vachan.schedulers[vachan.Macro] = h => setTimeout(h, 0);
