@@ -305,6 +305,9 @@ class P {
         }
     }
 
+    /*
+        TODO: Articulation Left 
+    */
     constructor(executor, scheduler = vachan.default_type) {
         this.setScheduler(scheduler);
         this.state = vachan.Pending;
@@ -335,18 +338,35 @@ class P {
         }
     }
 
+    /*
+        This method when invoked on the promise object returns a boolean to the 
+        proposition is the given promise fulfilled or not
+    */
     isFulfilled() {
         return this.state === vachan.Fulfilled;
     }
 
+    /*
+        This method when invoked on the promise object returns a boolean to the 
+        proposition is the given promise rejected or not
+    */
     isRejected() {
         return this.state === vachan.Rejected;
     }
 
+    /*
+        This method when invoked on the promise object returns a boolean to the 
+        proposition is the given promise pending or not
+    */
     isPending() {
         return this.state === vachan.Pending;
     }
 
+    /*
+        This method is for internal not to be accessed by the consumer, but responsible 
+        for notifying the attached success handler/s through a given scheduler
+        TODO: Dealing with the access issue in the next release
+    */
     resolve(v) {
         if (this.state === vachan.Pending) {
             this.state = vachan.Fulfilled;
@@ -358,6 +378,11 @@ class P {
         }
     }
 
+    /*
+        This method is for internal not to be accessed by the consumer, but responsible 
+        for notifying the attached failure handler/s through a given scheduler
+        TODO: Dealing with the access issue in the next release
+    */
     reject(e) {
         if (this.state === vachan.Pending) {
             this.state = vachan.Rejected;
@@ -369,16 +394,30 @@ class P {
         }
     }
 
+    /*
+        This method allows the consumer set custom scheduler through 
+        which either success and failure handlers are scheduled
+    */
     setScheduler(scheduler) {
         this.scheduler = scheduler instanceof Function && typeof scheduler === "function" ? this.custom = true || scheduler : scheduler in vachan.schedulers ? scheduler : vachan.default_type;
         return this;
     }
 
+    /*
+        This method is for internal use but this is the method through 
+        with resolve/reject queue tasks
+        TODO: Dealing with the access issue in the next release
+    */
     queueTask(h) {
         this.custom ? this.scheduler(h) : vachan.schedulers[this.scheduler](h);
         vachan.raiseEvent("HandlerQueued", { promise: this, scheduler: this.scheduler, handler: h });
     }
 
+
+    /*
+        The main method which allows the user to compose, 
+        compound and linearize asynchronicity
+    */
     then(s, f) {
         if (typeof (s) !== "function") s = undefined;
         if (typeof (f) !== "function") f = undefined;
