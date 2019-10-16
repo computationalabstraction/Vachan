@@ -447,6 +447,9 @@ class P {
         return parasite;
     }
 
+    /*
+        An easy chainable way of attaching N handlers to the given promise
+    */
     fork(...handlers) {
         return P.all(
             handlers.map(
@@ -457,10 +460,18 @@ class P {
         );
     }
 
+    /*
+        Joining and waiting collectively for multiple promises including 
+        the promise on which this was invoked
+    */
     join(...promises) {
         return P.all(this, ...promises);
     }
 
+    /*
+        This method allows the user to monitor the resolution value 
+        without effecting the promise and promise chain
+    */
     tap(s, f) {
         return this.then(
             v => { s ? s(v) : 0; return this; },
@@ -468,14 +479,24 @@ class P {
         );
     }
 
+    /*
+        This allows to attach failure handler
+    */
     catch(f) {
         return this.then(undefined, f);
     }
 
+    /*
+        This allows to attach a handler which will get
+        executed whatever happens ( fulfilled or rejected )
+    */
     finally(h) {
         return this.then(h, h);
     }
 
+    /*
+        Allows to chain promises whose resolution is delayed by a given time
+    */
     delay(ms) {
         return new P(
             (resolve, reject) => {
