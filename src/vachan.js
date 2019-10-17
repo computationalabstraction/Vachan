@@ -97,7 +97,7 @@ The default implementation is provided using conciseee package but
 any object can be used provided it has emit and on methods
 
 This implementation is swappable by any object which has 
-an emit method defined
+emit and on methods defined
 */
 vachan.realm = require("conciseee")();
 
