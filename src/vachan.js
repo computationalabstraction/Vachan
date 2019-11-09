@@ -74,7 +74,7 @@ Macro: This has been implemented using setTimeout(function, 0)
 Micro: This has been implemented using process.nextTick(function)
 Sync: This will directly call the passed function
 
-These scheduler implmentations are swappable but not recommended
+These scheduler implementations are swappable but not recommended
 
 NOTE: 
 On Node.js there is direct support for process.nextTick but 
@@ -413,7 +413,6 @@ class P {
         this.custom ? this.scheduler(h) : vachan.schedulers[this.scheduler](h);
         vachan.raiseEvent("HandlerQueued", { promise: this, scheduler: this.scheduler, handler: h });
     }
-
 
     /*
         The main method which allows the user to compose, 
