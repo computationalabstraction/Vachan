@@ -1,4 +1,4 @@
-<div style="align-content:center;">
+<div style="align-content:center;margin-left:auto;margin-right:auto;">
 
 ### <img src="https://raw.githubusercontent.com/archanpatkar/Vachan/master/vachan.png"/>
 
