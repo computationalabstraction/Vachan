@@ -513,4 +513,4 @@ vachan.P = P;
 /*
 Export
 */
-module.exports = vachan;
+module.exports = Object.freeze(vachan);
