@@ -1,6 +1,11 @@
+<div style="content-align:center">
+
 ### <img src="https://raw.githubusercontent.com/archanpatkar/Vachan/master/vachan.png"/>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-success.svg)](https://opensource.org/licenses/MIT) [![npm version](https://badge.fury.io/js/vachan.svg)](https://badge.fury.io/js/vachan) [![Actions Status](https://github.com/archanpatkar/vachan/workflows/build/badge.svg)](https://github.com/archanpatkar/vachan/actions?workflow=build) [![Maintainability](https://api.codeclimate.com/v1/badges/e064b9ca3fc02867c203/maintainability)](https://codeclimate.com/github/archanpatkar/Vachan/maintainability) ![Coverage: 99%](https://img.shields.io/badge/Coverage-99%25-success)
+
+</div>
+
 
 <a href="https://promisesaplus.com/">
     <img src="https://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
