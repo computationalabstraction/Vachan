@@ -198,10 +198,10 @@ Promise States -
 
 Diagrammatic Representation:
 
-Promise -> Pending -> resolve() -> Fulfilled < -
-              |                                 |   Either State it is
-              v                                 |        Resolved
-           reject() -> Rejected              < -
+Promise -> Pending -> resolve() -> Fulfilled <- -
+              |                                  |   Either State it is
+              v                                  |        Resolved
+           reject() -> Rejected <- - - - - - - - 
 
 State Table Representation:
 
@@ -264,7 +264,12 @@ Macro: This has been implemented using setTimeout(function, 0)
 Micro: This has been implemented using process.nextTick(function)
 Sync: This will directly call the passed function
 
-These scheduler implmentations are swappable but not recommended
+These scheduler implementations are swappable but not recommended
+
+NOTE: 
+On Node.js there is direct support for process.nextTick but 
+on the browser the implementation will use the proccess.nextTick 
+polyfill by Browserify.
 */
 vachan.schedulers = {};
 vachan.schedulers[vachan.Macro] = h => setTimeout(h, 0);
@@ -272,17 +277,17 @@ vachan.schedulers[vachan.Micro] = h => process.nextTick(h);
 /* 
 Only for debugging or to be used in a very urgent scenario where the 
 consequent task/s has/have to be done directly after the async task completes 
-and cannot wait for excution through async scheduling
+and cannot wait for excution through async scheduling.
 */
 vachan.schedulers[vachan.Sync] = h => h();
 
 /*
 Event Portal -
 The default implementation is provided using conciseee package but 
-any object can be used provided it has an emit method
+any object can be used provided it has emit and on methods.
 
 This implementation is swappable by any object which has 
-an emit method defined
+emit and on methods defined.
 */
 vachan.realm = require("conciseee")();
 
@@ -310,16 +315,17 @@ vachan.events.Rechained = Symbol("Rechained");
 /*
 Adapter function to the event portal -
 This function is used for loose coupling between the portal and the 
-internal promise code as the implementation for the portal can be swapped
+internal promise code as the implementation for the portal can be swapped.
 */
 vachan.raiseEvent = (eventname, data) => {
+    data.name = eventname;
     data.timestamp = new Date();
     vachan.realm.emit(eventname, data);
 };
 
 /*
 This function/logic has to be applied on both the resolved value
-of a promise and on the return value of a success or reject handler
+of a promise and on the return value of a success or reject handler.
 */
 let recurHandler = (value, context) => {
     if (value === null) context.resolve(value);
@@ -414,7 +420,7 @@ class P {
         promise which waits for the first promise of all the 
         promises (all promises race and the first one to get 
         resolve wins) sent to get resolved and will either 
-        fulfill or reject with the same value or reason
+        fulfill or reject with the same value or reason.
     */
     static race(...p) {
         if (p.length == 1 && Array.isArray(p[0])) p = p[0];
@@ -428,6 +434,14 @@ class P {
         );
     }
 
+    /* 
+        Accepts an array or varargs of promises and returns a 
+        promise which waits for any one promise of all the 
+        promises (any one successful fulfillment) sent to get
+        fulfilled and then fulfill the consequent promise or 
+        wait for all the promises to get rejected and reject 
+        the consequent promise with array of reasons.
+    */
     static any(...p) {
         if (p.length == 1 && Array.isArray(p[0])) p = p[0];
         return new P(
@@ -443,6 +457,11 @@ class P {
         )
     }
 
+    /* 
+        Accepts an array or varargs of promises and returns a 
+        promise which waits for all of them to get resolved and 
+        then resolves the consequent promise but with no values.
+    */
     static allSettled(...p) {
         if (p.length == 1 && Array.isArray(p[0])) p = p[0];
         return new P(
@@ -454,10 +473,18 @@ class P {
         );
     }
 
+    /* 
+       Creates and returns a new promise but delays its resolution with
+       the passed value for the given milleseconds.
+    */
     static delay(value, ms) {
         return new P((resolve) => setTimeout(() => resolve(value), ms));
     }
 
+    /* 
+       Promisifys any Node.js style callback based function which accepts 
+       a callback with the given signature: (err,data) => {}
+    */
     static vachanify(functor) {
         return (...args) => {
             return new P((resolve, reject) => {
@@ -469,6 +496,9 @@ class P {
         }
     }
 
+    /*
+        TODO: Articulation Left 
+    */
     constructor(executor, scheduler = vachan.default_type) {
         this.setScheduler(scheduler);
         this.state = vachan.Pending;
@@ -499,18 +529,35 @@ class P {
         }
     }
 
+    /*
+        This method when invoked on the promise object returns a boolean to the 
+        proposition is the given promise fulfilled or not.
+    */
     isFulfilled() {
         return this.state === vachan.Fulfilled;
     }
 
+    /*
+        This method when invoked on the promise object returns a boolean to the 
+        proposition is the given promise rejected or not.
+    */
     isRejected() {
         return this.state === vachan.Rejected;
     }
 
+    /*
+        This method when invoked on the promise object returns a boolean to the 
+        proposition is the given promise pending or not.
+    */
     isPending() {
         return this.state === vachan.Pending;
     }
 
+    /*
+        This method is for internal not to be accessed by the consumer, but responsible 
+        for notifying the attached success handler/s through a given scheduler
+        TODO: Dealing with the access issue in the next release.
+    */
     resolve(v) {
         if (this.state === vachan.Pending) {
             this.state = vachan.Fulfilled;
@@ -522,6 +569,11 @@ class P {
         }
     }
 
+    /*
+        This method is for internal not to be accessed by the consumer, but responsible 
+        for notifying the attached failure handler/s through a given scheduler
+        TODO: Dealing with the access issue in the next release.
+    */
     reject(e) {
         if (this.state === vachan.Pending) {
             this.state = vachan.Rejected;
@@ -533,16 +585,29 @@ class P {
         }
     }
 
+    /*
+        This method allows the consumer set custom scheduler through 
+        which either success and failure handlers are scheduled.
+    */
     setScheduler(scheduler) {
         this.scheduler = scheduler instanceof Function && typeof scheduler === "function" ? this.custom = true || scheduler : scheduler in vachan.schedulers ? scheduler : vachan.default_type;
         return this;
     }
 
+    /*
+        This method is for internal use but this is the method through 
+        with resolve/reject queue tasks.
+        TODO: Dealing with the access issue in the next release
+    */
     queueTask(h) {
         this.custom ? this.scheduler(h) : vachan.schedulers[this.scheduler](h);
         vachan.raiseEvent("HandlerQueued", { promise: this, scheduler: this.scheduler, handler: h });
     }
 
+    /*
+        The main method which allows the user to compose, 
+        compound and linearize asynchronicity.
+    */
     then(s, f) {
         if (typeof (s) !== "function") s = undefined;
         if (typeof (f) !== "function") f = undefined;
@@ -572,6 +637,9 @@ class P {
         return parasite;
     }
 
+    /*
+        An easy chainable way of attaching N handlers to the given promise.
+    */ 
     fork(...handlers) {
         return P.all(
             handlers.map(
@@ -582,10 +650,18 @@ class P {
         );
     }
 
+    /*
+        Joining and waiting collectively for multiple promises including 
+        the promise on which this was invoked.
+    */
     join(...promises) {
         return P.all(this, ...promises);
     }
 
+    /*
+        This method allows the user to monitor the resolution value 
+        without effecting the promise and promise chain.
+    */
     tap(s, f) {
         return this.then(
             v => { s ? s(v) : 0; return this; },
@@ -593,14 +669,24 @@ class P {
         );
     }
 
+    /*
+        This allows to attach failure handler.
+    */
     catch(f) {
         return this.then(undefined, f);
     }
 
+    /*
+        This allows to attach a handler which will get
+        executed whatever happens ( fulfilled or rejected ).
+    */
     finally(h) {
         return this.then(h, h);
     }
 
+    /*
+        Allows to chain promises whose resolution is delayed by a given time.
+    */
     delay(ms) {
         return new P(
             (resolve, reject) => {
@@ -617,7 +703,7 @@ vachan.P = P;
 /*
 Export
 */
-module.exports = vachan;
+module.exports = Object.freeze(vachan);
 }).call(this,require('_process'))
 },{"_process":2,"conciseee":1}]},{},[3])(3)
 });
