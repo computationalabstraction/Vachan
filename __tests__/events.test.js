@@ -9,22 +9,22 @@ Comprehensive Event Tests yet to be done
 
 test('Event: Created', () => {
     let counter = 0;
-    v.realm.on("Created", p => counter++);
+    v.realm.on(v.events.Created, p => counter++);
     for(let i = 0;i < 10;i++) P.resolve(i*10);
     expect(counter).toBe(10);
 });
 
 test('Event: ExecutorExecuted', () => {
     let counter = 0;
-    v.realm.on("ExecutorExecuted", p => counter++);
+    v.realm.on(v.events.ExecutorExecuted, p => counter++);
     for(let i = 0;i < 10;i++) new P(_ => {});
     expect(counter).toBe(10);
 });
 
 test('Event: ExecutorThrows', () => {
     let counter = 0;
-    v.realm.on("ExecutorExecuted", p => counter++);
-    v.realm.on("ExecutorThrows", p => counter++);
+    v.realm.on(v.events.ExecutorExecuted, p => counter++);
+    v.realm.on(v.events.ExecutorThrows, p => counter++);
     for(let i = 0;i < 10;i++) new P(_ => {throw new Error()});
     expect(counter).toBe(20);
 });
@@ -32,42 +32,42 @@ test('Event: ExecutorThrows', () => {
 
 test('Event: Fulfilled', () => {
     let counter = 0;
-    v.realm.on("Fulfilled", p => counter++);
+    v.realm.on(v.events.Fulfilled, p => counter++);
     for(let i = 0;i < 10;i++) P.resolve(i*10);
     expect(counter).toBe(10);
 });
 
 test('Event: Rejected', () => {
     let counter = 0;
-    v.realm.on("Rejected", p => counter++);
+    v.realm.on(v.events.Rejected, p => counter++);
     for(let i = 0;i < 10;i++) P.reject(i*10);
     expect(counter).toBe(10);
 });
 
 test('Event: Preresolved', () => {
     let counter = 0;
-    v.realm.on("Preresolved", p => counter++);
+    v.realm.on(v.events.Preresolved, p => counter++);
     for(let i = 0;i < 10;i++) P.resolve(i*10).then();
     expect(counter).toBe(10);
 });
 
 test('Event: Prerejected', () => {
     let counter = 0;
-    v.realm.on("Prerejected", p => counter++);
+    v.realm.on(v.events.Prerejected, p => counter++);
     for(let i = 0;i < 10;i++) P.reject(i*10).then();
     expect(counter).toBe(10);
 });
 
 test('Event: Chained', () => {
     let counter = 0;
-    v.realm.on("Chained", p => counter++);
+    v.realm.on(v.events.Chained, p => counter++);
     for(let i = 0;i < 10;i++) new P().then();
     expect(counter).toBe(10);
 });
 
 test('Event: Rechained', () => {
     let counter = 0;
-    v.realm.on("Rechained", p => counter++);
+    v.realm.on(v.events.Rechained, p => counter++);
     for(let i = 0;i < 10;i++) P.resolve(P.resolve(i*10));
     expect(counter).toBe(10);
 });

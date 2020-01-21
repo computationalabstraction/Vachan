@@ -4,10 +4,12 @@ const P = v.P;
 
 test('P.vachanify', () => {
     let read = P.vachanify(fs.readFile);
+    let temp = P.vachanify((cb)=>{cb(true,null)});
     return Promise.all([
         expect(read("./__tests__/one.txt").then(data => data.toString())).resolves.toMatch("hello world"),
         expect(read("xyz.txt")).rejects.toThrow(/ENOENT: no such file or directory/),
         expect(read("./__tests__/one.txt").setScheduler(v.Macro).then(data => data.toString())).resolves.toMatch("hello world"),
+        expect(temp().then()).rejects.toBe(true)
     ]);
 });
 
@@ -238,6 +240,12 @@ test('P.prototype.fork', () => {
     resolves.push(expect(
         P.resolve(10).fork(v => v + 1, v => v + 2, v => v + 3, v => v + 4)
     ).resolves.toEqual([11, 12, 13, 14]));
+    resolves.push(expect(
+        P.resolve(10).fork([v => v,v => v],[v => v,v => v])
+    ).resolves.toEqual([10,10]));
+    resolves.push(expect(
+        P.reject(10).fork([v => v,v => v],[v => v,v => v])
+    ).resolves.toEqual([10,10]));
     return P.all(resolves);
 });
 
@@ -260,5 +268,6 @@ test('Edge Cases', () => {
     })).rejects.toThrow("Testing Edge Case in recurhandler"));
     resolves.push(expect(P.vachanify((cb) => cb(null, null))().then(() => { })).resolves.toBe(undefined));
     resolves.push(expect(P.resolve(10).then(() => { throw new Error(); })).rejects.toThrow());
+    resolves.push(expect(new P((re,rj,cp)=>{cp.setScheduler(f=>f());re(10)}).then()).resolves.toBe(10))
     return P.all(resolves);
 });

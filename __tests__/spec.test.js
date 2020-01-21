@@ -3,11 +3,18 @@ const v = require("../src/vachan");
 const P = v.P;
 
 function deferred() {
-    let p = new P();
+    let res;
+    let rej;
+    let p = new P(
+        (resolve,reject) => {
+            res = resolve;
+            rej = reject;
+        }
+    );
     return {
         promise: p,
-        resolve: (v) => p.resolve(v),
-        reject: (v) => p.reject(v)
+        resolve: res,
+        reject: rej
     };
 }
 
