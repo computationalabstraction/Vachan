@@ -517,4 +517,14 @@ vachan.P = P;
 /*
 Export
 */
-module.exports = Object.freeze(vachan);
+for(let key of Object.keys(vachan))
+{
+    if(key != "realm" && key != "default_type")
+    {
+        Object.defineProperty(vachan,key,{
+            configurable:false,
+            writable:false
+        });
+    }
+}
+module.exports = vachan;
