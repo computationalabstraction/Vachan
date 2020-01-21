@@ -227,22 +227,23 @@ vachan.Fulfilled = Symbol("Fulfilled");
 vachan.Rejected = Symbol("Rejected");
 
 /*
-TODO: Next Release
-
 Promise Internal Symbols - 
 These symbols should not be visible to the consumer directly.
 This should make it difficult (but not impossible) to access internal 
 promise data and operations from outside can be achieved
 but would need reverse engineering using something like 
 Object.getOwnPropertySymbols() or Reflect API
-
+*/
 let resolve = Symbol("Resolve");
 let reject = Symbol("Reject");
 let success_handler = Symbol("Success Handler");
 let failure_handler = Symbol("Failure Handler");
 let state = Symbol("State");
 let value = Symbol("Value");
-*/
+let scheduler = Symbol("Scheduler");
+let executor = Symbol("Executor");
+let custom = Symbol("Custom");
+let queueTask = Symbol("Queue Task");
 
 /*
 Predefined Schedulers or Modes -
@@ -280,6 +281,7 @@ consequent task/s has/have to be done directly after the async task completes
 and cannot wait for excution through async scheduling.
 */
 vachan.schedulers[vachan.Sync] = h => h();
+Object.seal(vachan.schedulers);
 
 /*
 Event Portal -
@@ -292,11 +294,9 @@ emit and on methods defined.
 vachan.realm = require("conciseee")();
 
 /*
-TODO: Next Release
-
 Events Defintions -
 Events which will be raised on the Event Portal
-
+*/
 vachan.events = {};
 vachan.events.Created = Symbol("Created");
 vachan.events.ExecutorExecuted = Symbol("ExecutorExecuted");
@@ -309,8 +309,7 @@ vachan.events.Chained = Symbol("Chained");
 vachan.events.HandlerQueued = Symbol("HandlerQueued");
 vachan.events.HandlerExecuted = Symbol("HandlerExecuted");
 vachan.events.Rechained = Symbol("Rechained");
-*/
-
+Object.freeze(vachan.events);
 
 /*
 Adapter function to the event portal -
@@ -318,7 +317,7 @@ This function is used for loose coupling between the portal and the
 internal promise code as the implementation for the portal can be swapped.
 */
 vachan.raiseEvent = (eventname, data) => {
-    data.name = eventname;
+    data.event = eventname;
     data.timestamp = new Date();
     vachan.realm.emit(eventname, data);
 };
@@ -348,7 +347,7 @@ let recurHandler = (value, context) => {
                     if (!rcalled && !recalled) context.reject(e);
                     recalled = true;
                 });
-                vachan.raiseEvent("Rechained", { value: value, promise: context.cp });
+                vachan.raiseEvent(vachan.events.Rechained, { value: value, promise: context.cp });
             }
             else {
                 context.resolve(value);
@@ -373,7 +372,7 @@ let handler = (f, context) => (v) => {
     catch (e) {
         context.reject(e);
     }
-    vachan.raiseEvent("HandlerExecuted", { promise: context.cp, handler: f });
+    vachan.raiseEvent(vachan.events.HandlerExecuted, { promise: context.cp, handler: f });
 };
 
 /*
@@ -500,31 +499,31 @@ class P {
         TODO: Articulation Left 
     */
     constructor(executor, scheduler = vachan.default_type) {
+        this[state] = vachan.Pending;
         this.setScheduler(scheduler);
-        this.state = vachan.Pending;
-        this.value = undefined;
-        this.success_handler = [];
-        this.failure_handler = [];
-        vachan.raiseEvent("Created", { promise: this });
+        this[value] = undefined;
+        this[success_handler] = [];
+        this[failure_handler] = [];
+        vachan.raiseEvent(vachan.events.Created, { promise: this });
         if (executor) {
-            this.executor = executor;
+            this[executor] = executor;
             try {
                 const context = {
-                    resolve: v => this.resolve(v),
-                    reject: e => this.reject(e),
+                    resolve: v => this[resolve](v),
+                    reject: e => this[reject](e),
                     cp: this
                 };
-                this.executor(
+                this[executor](
                     v => recurHandler(v, context),
                     context.reject,
                     this
                 );
-                vachan.raiseEvent("ExecutorExecuted", { promise: this, executor: this.executor });
+                vachan.raiseEvent(vachan.events.ExecutorExecuted, { promise: this, executor: this[executor] });
             }
             catch (e) {
-                this.reject(e);
-                vachan.raiseEvent("ExecutorExecuted", { promise: this, executor: this.executor });
-                vachan.raiseEvent("ExecutorThrows", { promise: this, executor: this.executor });
+                this[reject](e);
+                vachan.raiseEvent(vachan.events.ExecutorExecuted, { promise: this, executor: this[executor] });
+                vachan.raiseEvent(vachan.events.ExecutorThrows, { promise: this, executor: this[executor] });
             }
         }
     }
@@ -534,7 +533,7 @@ class P {
         proposition is the given promise fulfilled or not.
     */
     isFulfilled() {
-        return this.state === vachan.Fulfilled;
+        return this[state] === vachan.Fulfilled;
     }
 
     /*
@@ -542,7 +541,7 @@ class P {
         proposition is the given promise rejected or not.
     */
     isRejected() {
-        return this.state === vachan.Rejected;
+        return this[state] === vachan.Rejected;
     }
 
     /*
@@ -550,38 +549,36 @@ class P {
         proposition is the given promise pending or not.
     */
     isPending() {
-        return this.state === vachan.Pending;
+        return this[state] === vachan.Pending;
     }
 
     /*
         This method is for internal not to be accessed by the consumer, but responsible 
         for notifying the attached success handler/s through a given scheduler
-        TODO: Dealing with the access issue in the next release.
     */
-    resolve(v) {
-        if (this.state === vachan.Pending) {
-            this.state = vachan.Fulfilled;
-            this.value = v;
-            for (let handler of this.success_handler) {
-                this.queueTask(() => handler(v));
+    [resolve](v) {
+        if (this[state] === vachan.Pending) {
+            this[state] = vachan.Fulfilled;
+            this[value] = v;
+            for (let handler of this[success_handler]) {
+                this[queueTask](() => handler(v));
             }
-            vachan.raiseEvent("Fulfilled", { promise: this });
+            vachan.raiseEvent(vachan.events.Fulfilled, { promise: this });
         }
     }
 
     /*
         This method is for internal not to be accessed by the consumer, but responsible 
         for notifying the attached failure handler/s through a given scheduler
-        TODO: Dealing with the access issue in the next release.
     */
-    reject(e) {
-        if (this.state === vachan.Pending) {
-            this.state = vachan.Rejected;
-            this.value = e;
-            for (let handler of this.failure_handler) {
-                this.queueTask(() => handler(e));
+    [reject](e) {
+        if (this[state] === vachan.Pending) {
+            this[state] = vachan.Rejected;
+            this[value] = e;
+            for (let handler of this[failure_handler]) {
+                this[queueTask](() => handler(e));
             }
-            vachan.raiseEvent("Rejected", { promise: this });
+            vachan.raiseEvent(vachan.events.Rejected, { promise: this });
         }
     }
 
@@ -589,19 +586,26 @@ class P {
         This method allows the consumer set custom scheduler through 
         which either success and failure handlers are scheduled.
     */
-    setScheduler(scheduler) {
-        this.scheduler = scheduler instanceof Function && typeof scheduler === "function" ? this.custom = true || scheduler : scheduler in vachan.schedulers ? scheduler : vachan.default_type;
+    setScheduler(new_scheduler) {
+        if(this[state] === vachan.Pending) 
+        {
+            if(new_scheduler instanceof Function && typeof new_scheduler === "function")
+            {
+                this[custom] = true;
+                this[scheduler] = new_scheduler;
+            }
+            else if(new_scheduler in vachan.schedulers) this[scheduler] = new_scheduler;
+        }
         return this;
     }
 
     /*
         This method is for internal use but this is the method through 
         with resolve/reject queue tasks.
-        TODO: Dealing with the access issue in the next release
     */
-    queueTask(h) {
-        this.custom ? this.scheduler(h) : vachan.schedulers[this.scheduler](h);
-        vachan.raiseEvent("HandlerQueued", { promise: this, scheduler: this.scheduler, handler: h });
+    [queueTask](h) {
+        this[custom] ? this[scheduler](h) : vachan.schedulers[this[scheduler]](h);
+        vachan.raiseEvent(vachan.events.HandlerQueued, { promise: this, scheduler: this[scheduler], handler: h });
     }
 
     /*
@@ -613,26 +617,26 @@ class P {
         if (typeof (f) !== "function") f = undefined;
         const parasite = new P();
         const context = {
-            resolve: v => parasite.resolve(v),
-            reject: e => parasite.reject(e),
+            resolve: v => parasite[resolve](v),
+            reject: e => parasite[reject](e),
             cp: parasite
         };
-        if (this.state === vachan.Fulfilled) {
-            if (s) this.queueTask(() => handler(s, context)(this.value));
-            else this.queueTask(() => parasite.resolve(this.value));
-            vachan.raiseEvent("Preresolved", { substrate: this, parasite: parasite, handler: s });
+        if (this[state] === vachan.Fulfilled) {
+            if (s) this[queueTask](() => handler(s, context)(this[value]));
+            else this[queueTask](() => parasite[resolve](this[value]));
+            vachan.raiseEvent(vachan.events.Preresolved, { substrate: this, parasite: parasite, handler: s });
         }
-        else if (this.state === vachan.Rejected) {
-            if (f) this.queueTask(() => handler(f, context)(this.value));
-            else this.queueTask(() => parasite.reject(this.value));
-            vachan.raiseEvent("Prerejected", { substrate: this, parasite: parasite, handler: f });
+        else if (this[state] === vachan.Rejected) {
+            if (f) this[queueTask](() => handler(f, context)(this[value]));
+            else this[queueTask](() => parasite[reject](this[value]));
+            vachan.raiseEvent(vachan.events.Prerejected, { substrate: this, parasite: parasite, handler: f });
         }
         else {
-            if (s) this.success_handler.push(handler(s, context));
-            else this.success_handler.push(context.resolve);
-            if (f) this.failure_handler.push(handler(f, context));
-            else this.failure_handler.push(context.reject);
-            vachan.raiseEvent("Chained", { substrate: this, parasite: parasite });
+            if (s) this[success_handler].push(handler(s, context));
+            else this[success_handler].push(context.resolve);
+            if (f) this[failure_handler].push(handler(f, context));
+            else this[failure_handler].push(context.reject);
+            vachan.raiseEvent(vachan.events.Chained, { substrate: this, parasite: parasite });
         }
         return parasite;
     }
@@ -664,8 +668,8 @@ class P {
     */
     tap(s, f) {
         return this.then(
-            v => { s ? s(v) : 0; return this; },
-            e => { f ? f(e) : 0; return this; }
+            v => { if(s)s(v); return this; },
+            e => { if(f)f(e); return this; }
         );
     }
 
