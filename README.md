@@ -42,6 +42,10 @@ npm i vachan
 ```
 <script src="https://unpkg.com/vachan"></script>
 ```
+### Browser Optimized (gzipped)
+```
+<script src="https://unpkg.com/vachan/dist/browser/vachan.dist.min.js.gz"></script>
+```
 
 ## Usage
 
