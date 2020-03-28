@@ -6,7 +6,7 @@
 
 </div>
 
-<a href="https://github.com/standard/standard"><img alt="Standard JavaScript Style Guide" src="https://cdn.rawgit.com/standard/standard/master/badge.svg" align="left"></a>
+<a href="https://github.com/standard/standard"><img height="82" alt="Standard JavaScript Style Guide" src="https://cdn.rawgit.com/standard/standard/master/badge.svg" align="left"></a>
  <a href="https://github.com/fantasyland/fantasy-land"><img width="82" height="82" alt="Fantasy Land" src="https://raw.github.com/puffnfresh/fantasy-land/master/logo.png" align="left"></a>
 <a href="https://promisesaplus.com/">
     <img src="https://promisesaplus.com/assets/logo-small.png" width="82" height="82" alt="Promises/A+ logo"
