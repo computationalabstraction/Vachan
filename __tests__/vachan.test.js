@@ -249,6 +249,93 @@ test('P.prototype.fork', () => {
     return P.all(resolves);
 });
 
+test('P.prototype.map', () => {
+    let p = [];
+    // Fantasy Land Laws
+    // Law 1 - Identity
+    // I(x) == x
+    let p1 = P.resolve(10);
+    let p2 = p1.map(v => v);
+    p.push(
+        expect(P.all(p1,p2).then(v => v[0] == v[1]))
+        .resolves.toBe(true)
+    );
+    // Law 2 - Consistent Composition
+    // x.map(i => f(g(i))) == x.map(g).map(f)
+    let f = x => x + 10;
+    let g = x => x * 2;
+    p.push(
+        expect(P.all(p1.map(v => f(g(v))),p1.map(g).map(f)))
+        .resolves.toEqual([30,30])
+    );
+    return P.all(p);
+});
+
+test('P.prototype.bimap', () => {
+    let p = [];
+    // Fantasy Land Laws
+    // Law 1 - Identity
+    // I(x) == x
+    let I = v => v;
+    let p1 = P.resolve(10);
+    let p2 = p1.bimap(I,I);
+    let p3 = P.reject(10);
+    let p4 = p3.bimap(I,I);
+    p.push(
+        expect(P.all(p1,p2).then(v => v[0] == v[1]))
+        .resolves.toBe(true)
+    );
+    p.push(
+        expect(P.any(p3,p4))
+        .resolves.toBe(10)
+    );
+    // Law 2 - Consistent Composition
+    // x.bimap(i => f(g(i)),j => a(b(j))) == x.bimap(g,b).bimap(f,a)
+    let f = x => x + 10;
+    let g = x => x * 2;
+    p.push(
+        expect(
+            P.all(
+                p1.bimap(v => f(g(v)),I),
+                p1.bimap(g,I).then(f,I),
+            )
+        )
+        .resolves.toEqual([30,30])
+    );
+    p.push(
+        expect(
+            P.any(
+                p3.bimap(I,v => f(g(v))),
+                p3.bimap(I,g).bimap(I,f)
+            )
+        )
+        .resolves.toEqual(30)
+    );
+    return P.all(p);
+});
+
+test('P.prototype.ap', () => {
+    let p = [];
+    // Fantasy Land Laws
+    // Law 1 - Identity
+    // I(x) == x
+    let p1 = P.resolve(10);
+    let p2 = p1.map(v => v);
+    p.push(
+        expect(P.all(p1,p2).then(v => v[0] == v[1]))
+        .resolves.toBe(true)
+    );
+    // Law 2 - Consistent Composition
+    // x.map(i => f(g(i))) == x.map(g).map(f)
+    let f = x => x + 10;
+    let g = x => x * 2;
+    p.push(
+        expect(P.all(p1.map(v => f(g(v))),p1.map(g).map(f)))
+        .resolves.toEqual([30,30])
+    );
+    return P.all(p);
+});
+
 test('Edge Cases', () => {
     let resolves = [];
     resolves.push(expect(new P((r, re, cp) => r(cp))).rejects.toThrow(/It cannot return the same Promise/));

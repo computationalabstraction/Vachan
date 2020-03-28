@@ -129,7 +129,7 @@ internal promise code as the implementation for the portal can be swapped.
 vachan.raiseEvent = (eventname, data) => {
     data.event = eventname;
     data.timestamp = new Date();
-    vachan.realm.emit(eventname, data);
+    vachan.realm.emit(eventname, data, true);
 };
 
 /*
@@ -362,6 +362,10 @@ class P {
         return this[state] === vachan.Pending;
     }
 
+    getValue(){
+        return !this[state] === vachan.Pending ? this[value] : this;
+    }   
+
     /*
         This method is for internal not to be accessed by the consumer, but responsible 
         for notifying the attached success handler/s through a given scheduler
@@ -511,7 +515,41 @@ class P {
             }
         );
     }
+
+    map(h) {
+        return this["fantasy-land/map"](h);
+    }
+
+    bimap(s,f) {
+        return this["fantasy-land/bimap"](s,f);
+    }
+
+    ap(promise) {
+        return ["fantasy-land/ap"](promise);
+    }
+
 }
+
+P.prototype["fantasy-land/map"] = function(f) {
+    if(f instanceof Function && typeof f == "function") {
+        return this.then(f);
+    }
+    return this;
+};
+
+P.prototype["fantasy-land/bimap"] = function(f1,f2) {
+    if(f1 instanceof Function && typeof f1 == "function" && f2 instanceof Function && typeof f2 == "function") {
+        return this.then(f1,f2);
+    }
+    return this;
+};
+
+P.prototype["fantasy-land/ap"] = function(p) {
+    return this.then(
+        a => p.then(f => f instanceof Function && typeof f == "function"? f(a):undefined)
+    );
+};
+
 vachan.P = P;
 
 /*
