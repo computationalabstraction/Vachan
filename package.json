@@ -14,7 +14,8 @@
     "babel-preset-minify": "^0.5.1",
     "browserify": "^16.5.0",
     "jest": "^25.1.0",
-    "promises-aplus-tests": "*"
+    "promises-aplus-tests": "*",
+    "standard": "^14.3.3"
   },
   "repository": {
     "type": "git",
