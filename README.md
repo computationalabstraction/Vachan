@@ -6,10 +6,6 @@
 
 </div>
 
-
-A **lightweight** (3.5kB) cross-platform **Promises/A+ spec compliant** promise library. Vachan works both on the **Browser** and **Node.js**. Vachan provides extra features over the `standard promise implementation` such as _monitoring_ the complete internal **chaining and rechaining** of promises, **queuing of callbacks** and **execution of callbacks**, **mode of execution** and other _functional_ and _utilitarian_ features and also gives you polyfills for ESNext functions - `any` and `allSettled`. This project was partly a fruition of exploring promises from the perspective of an implementor and also in an effort to create a core ecosystem of libraries, constructs and utilities which can be reused across domains. 
-
-
  <a href="https://github.com/standard/standard"><img alt="Standard JavaScript Style Guide" src="https://cdn.rawgit.com/standard/standard/master/badge.svg" ></a>
 <br>
  <a href="https://github.com/fantasyland/fantasy-land"><img width="82" height="82" alt="Fantasy Land" src="https://raw.github.com/puffnfresh/fantasy-land/master/logo.png" align="right"></a>
@@ -18,6 +14,8 @@ A **lightweight** (3.5kB) cross-platform **Promises/A+ spec compliant** promise 
     <img src="https://promisesaplus.com/assets/logo-small.png" width="82" height="82" alt="Promises/A+ logo"
          title="Promises/A+ 1.0 compliant" align="right" />
 </a>
+
+A **lightweight** (3.5kB) cross-platform **Promises/A+ spec compliant** promise library. Vachan works both on the **Browser** and **Node.js**. Vachan provides extra features over the `standard promise implementation` such as _monitoring_ the complete internal **chaining and rechaining** of promises, **queuing of callbacks** and **execution of callbacks**, **mode of execution** and other _functional_ and _utilitarian_ features and also gives you polyfills for ESNext functions - `any` and `allSettled`. This project was partly a fruition of exploring promises from the perspective of an implementor and also in an effort to create a core ecosystem of libraries, constructs and utilities which can be reused across domains. 
 
 #### `Example Usage`
 ```javascript
