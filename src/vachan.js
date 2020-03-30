@@ -505,6 +505,8 @@ class P {
     )
   }
 
+  // Fantasy Land and Static Land---------------------------------------
+
   map (h) {
     return this['fantasy-land/map'](h)
   }
@@ -514,8 +516,17 @@ class P {
   }
 
   ap (promise) {
-    return ['fantasy-land/ap'](promise)
+    return this['fantasy-land/ap'](promise)
   }
+
+  static ['fantasy-land/of'](v) {
+    return P.resolve(v);
+  }
+
+  static of(v) {
+    return P['fantasy-land/of'](v);
+  }
+
 }
 
 P.prototype['fantasy-land/map'] = function (f) {
@@ -536,6 +547,10 @@ P.prototype['fantasy-land/ap'] = function (p) {
   return this.then(
     a => p.then(f => f instanceof Function && typeof f === 'function' ? f(a) : undefined)
   )
+}
+
+P.prototype['fantasy-land/alt'] = function (p) {
+   // WIP
 }
 
 vachan.P = P

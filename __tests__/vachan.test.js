@@ -251,7 +251,7 @@ test('P.prototype.fork', () => {
 
 test('P.prototype.map', () => {
     let p = [];
-    // Fantasy Land Laws
+    // Fantasy Land Laws - Functor
     // Law 1 - Identity
     // I(x) == x
     let p1 = P.resolve(10);
@@ -273,7 +273,7 @@ test('P.prototype.map', () => {
 
 test('P.prototype.bimap', () => {
     let p = [];
-    // Fantasy Land Laws
+    // Fantasy Land Laws - Bifunctor
     // Law 1 - Identity
     // I(x) == x
     let I = v => v;
@@ -316,23 +316,30 @@ test('P.prototype.bimap', () => {
 
 test('P.prototype.ap', () => {
     let p = [];
-    // Fantasy Land Laws
+    // Fantasy Land Laws - Apply
+    // Law Composition
+    let I = x => x;
+    let a = P.resolve(I);
+    let u = P.resolve(I);
+    let v = P.resolve(20);
+    p.push(expect(v.ap(u.ap(a.map(f => g => x => f(g(x)))))).resolves.toBe(20));
+    p.push(expect(v.ap(u).ap(a)).resolves.toBe(20));
+    return P.all(p);
+});
+
+test('P.of', () => {
+    let p = [];
+    // Fantasy Land Laws - Applicative
     // Law 1 - Identity
     // I(x) == x
-    let p1 = P.resolve(10);
-    let p2 = p1.map(v => v);
-    p.push(
-        expect(P.all(p1,p2).then(v => v[0] == v[1]))
-        .resolves.toBe(true)
-    );
-    // Law 2 - Consistent Composition
-    // x.map(i => f(g(i))) == x.map(g).map(f)
-    let f = x => x + 10;
-    let g = x => x * 2;
-    p.push(
-        expect(P.all(p1.map(v => f(g(v))),p1.map(g).map(f)))
-        .resolves.toEqual([30,30])
-    );
+    let I = x => x;
+    let v = P.of(10);
+    let a = P.of(I);
+    p.push(expect(v.ap(a)).resolves.toBe(10));
+    // Law 2 - Homomorphism
+    p.push(expect(P.all(v.ap(a),P.of(I(10)))).resolves.toEqual([10,10]));
+    // Law 3 - Interchange
+    p.push(expect(P.all(v.ap(a),a.ap(P.of(f => f(10))))).resolves.toEqual([10,10]))
     return P.all(p);
 });
 
