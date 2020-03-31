@@ -519,6 +519,14 @@ class P {
     return this['fantasy-land/ap'](promise)
   }
 
+  alt(promise) {
+    return this['fantasy-land/alt'](promise)
+  }
+
+  chain(h) {
+      return this['fantasy-land/chain'](h);
+  }
+
   static ['fantasy-land/of'](v) {
     return P.resolve(v);
   }
@@ -527,6 +535,21 @@ class P {
     return P['fantasy-land/of'](v);
   }
 
+  static ['fantasy-land/zero']() {
+    // WIP
+  }
+
+  static zero() {
+    return P['fantasy-land/zero'](); 
+  }
+
+  static ['fantasy-land/empty']() {
+    // WIP
+  }
+
+  static empty() {
+    return P['fantasy-land/empty'](); 
+  }
 }
 
 P.prototype['fantasy-land/map'] = function (f) {
@@ -550,7 +573,15 @@ P.prototype['fantasy-land/ap'] = function (p) {
 }
 
 P.prototype['fantasy-land/alt'] = function (p) {
-   // WIP
+   return this.then(v => v,e => p);
+}
+
+P.prototype['fantasy-land/chain'] = function (f) {
+    return f instanceof Function && typeof f === 'function' ? this.then(f): this;
+}
+
+P.prototype['fantasy-land/concat'] = function (f) {
+    // WIP
 }
 
 vachan.P = P
