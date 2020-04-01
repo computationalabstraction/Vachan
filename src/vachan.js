@@ -54,6 +54,7 @@ const scheduler = Symbol('Scheduler')
 const executor = Symbol('Executor')
 const custom = Symbol('Custom')
 const queueTask = Symbol('Queue Task')
+const internalSemigroup = Symbol("Internal Semigroup")
 
 /*
 Predefined Schedulers or Modes -
@@ -356,7 +357,7 @@ class P {
     return this[state] === vachan.Pending
   }
 
-  getValue () {
+  resultant () {
     return !this[state] === vachan.Pending ? this[value] : this
   }
 
@@ -527,6 +528,10 @@ class P {
       return this['fantasy-land/chain'](h);
   }
 
+  concat(promise) {
+    return this['fantasy-land/concat'](promise);
+  }
+
   static ['fantasy-land/of'](v) {
     return P.resolve(v);
   }
@@ -580,8 +585,14 @@ P.prototype['fantasy-land/chain'] = function (f) {
     return f instanceof Function && typeof f === 'function' ? this.then(f): this;
 }
 
-P.prototype['fantasy-land/concat'] = function (f) {
-    // WIP
+P.prototype['fantasy-land/concat'] = function (p) {
+    return this.then(x => p.then(y => {
+        let o = []
+        o[internalSemigroup] = true;
+        x[internalSemigroup]? o.push(...x): o.push(x);
+        y[internalSemigroup]? o.push(...y): o.push(y);
+        return o
+    }),e => p)
 }
 
 vachan.P = P

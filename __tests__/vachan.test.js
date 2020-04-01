@@ -361,6 +361,24 @@ test('P.prototype.alt', () => {
 
 test('P.zero', () => {
     let p = [];
+    // WIP
+    // Fantasy Land Laws - Alt
+    // Law - Associativity
+    let I = x => x;
+    let a = P.reject(10);
+    let b = P.reject(20);
+    let c = P.resolve(30);
+    p.push(expect(a.alt(b).alt(c)).resolves.toBe(30));
+    p.push(expect(a.alt(b.alt(c))).resolves.toBe(30));
+    // Law - Distributivity 
+    p.push(expect(a.alt(c).map(x => x*x)).resolves.toBe(900));
+    p.push(expect(a.map(x => x*x).alt(c.map(x => x*x))).resolves.toBe(900));  
+    return P.all(p);
+});
+
+test('P.empty', () => {
+    let p = [];
+    // WIP
     // Fantasy Land Laws - Alt
     // Law - Associativity
     let I = x => x;
@@ -377,18 +395,12 @@ test('P.zero', () => {
 
 test('P.prototype.chain', () => {
     let p = [];
-    // WIP
     // Fantasy Land Laws - Alt
     // Law - Associativity
     let I = x => x;
-    let a = P.reject(10);
-    let b = P.reject(20);
-    let c = P.resolve(30);
-    p.push(expect(a.alt(b).alt(c)).resolves.toBe(30));
-    p.push(expect(a.alt(b.alt(c))).resolves.toBe(30));
-    // Law - Distributivity 
-    p.push(expect(a.alt(c).map(x => x*x)).resolves.toBe(900));
-    p.push(expect(a.map(x => x*x).alt(c.map(x => x*x))).resolves.toBe(900));  
+    let a = P.resolve(10);
+    p.push(expect(a.chain(P.resolve).chain(I)).resolves.toBe(10));
+    p.push(expect(a.chain(x => P.resolve(x).chain(I))).resolves.toBe(10));
     return P.all(p);
 });
 
