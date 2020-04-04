@@ -134,6 +134,20 @@ vachan.raiseEvent = (eventname, data) => {
   vachan.realm.emit(eventname, data, true)
 }
 
+// Funtional Utils
+// Identity
+const I = x => x;
+// Autocurrying
+const curry = (f) => {
+    function $internal(...args) {
+        if(args.length < f.length) return $internal.bind(null,...args);
+        return f(...args);
+    };
+    return $internal;
+};
+// Function Composition
+const compose = (...f) => x => f.reverse().reduce((acc,f) => f(acc),x);
+
 /*
 This function/logic has to be applied on both the resolved value
 of a promise and on the return value of a success or reject handler.
@@ -520,7 +534,9 @@ class P {
   // + Monad
   // + Bifunctor
   // + Filterable
-  // + Setoid(*)
+  // + Semigroupoid
+  // + Category
+  // + Setoid(*Not Exact)
   // --------------------------------------------------------------------
 
   equals(promise) {
@@ -558,12 +574,24 @@ class P {
     return this['fantasy-land/filter'](h);
   }
 
+  compose(promise) {
+    return this['fantasy-land/compose'](promise); 
+  }
+
   static ['fantasy-land/of'](v) {
     return P.resolve(v);
   }
 
   static of(v) {
     return P['fantasy-land/of'](v);
+  }
+
+  static ['fantasy-land/id']() {
+    return P.resolve(I);
+  }
+
+  static id() {
+    return P['fantasy-land/id']();
   }
 
   static ['fantasy-land/zero']() {
@@ -625,6 +653,14 @@ P.prototype['fantasy-land/concat'] = function (p) {
 P.prototype['fantasy-land/filter'] = function (f) {
     return this.then(v => f(v) ? v : P.resolve(undefined));
 } 
+
+P.prototype['fantasy-land/compose'] = function (f) {
+    return this.then(v => f(v) ? v : P.resolve(undefined));
+} 
+
+// Pure Functional Definitions for Static Land
+// Will use existing Fantasy Land methods and write a wrapper
+// WIP
 
 vachan.P = P
 
