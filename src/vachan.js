@@ -55,6 +55,7 @@ const executor = Symbol('Executor')
 const custom = Symbol('Custom')
 const queueTask = Symbol('Queue Task')
 const internalSemigroup = Symbol("Internal Semigroup")
+const nothing = Symbol("Empty");
 
 /*
 Predefined Schedulers or Modes -
@@ -507,6 +508,27 @@ class P {
   }
 
   // Fantasy Land and Static Land---------------------------------------
+  // + Semigroup
+  // + Monoid
+  // + Functor
+  // + Apply
+  // + Applicative
+  // + Alt
+  // + Plus
+  // + Alternative
+  // + Chain
+  // + Monad
+  // + Bifunctor
+  // + Filterable
+  // + Setoid(*)
+  // --------------------------------------------------------------------
+
+  equals(promise) {
+    if(this.isPending() || promise.isPending()) {
+        return this.join(promise).then(([i,j]) => i === j)
+    }
+    return this.resultant() === promise.resultant()
+  }
 
   map (h) {
     return this['fantasy-land/map'](h)
@@ -532,6 +554,10 @@ class P {
     return this['fantasy-land/concat'](promise);
   }
 
+  filter(h) {
+    return this['fantasy-land/filter'](h);
+  }
+
   static ['fantasy-land/of'](v) {
     return P.resolve(v);
   }
@@ -541,7 +567,7 @@ class P {
   }
 
   static ['fantasy-land/zero']() {
-    // WIP
+    return P.reject(nothing);
   }
 
   static zero() {
@@ -549,7 +575,7 @@ class P {
   }
 
   static ['fantasy-land/empty']() {
-    // WIP
+    return P.resolve(nothing);
   }
 
   static empty() {
@@ -588,12 +614,17 @@ P.prototype['fantasy-land/chain'] = function (f) {
 P.prototype['fantasy-land/concat'] = function (p) {
     return this.then(x => p.then(y => {
         let o = []
+        let i = false;
         o[internalSemigroup] = true;
-        x[internalSemigroup]? o.push(...x): o.push(x);
-        y[internalSemigroup]? o.push(...y): o.push(y);
-        return o
+        x[internalSemigroup]? o.push(...x): x === nothing? o.push(x): i=y;
+        y[internalSemigroup]? o.push(...y): y === nothing? o.push(y): i=x;
+        return i?i:o
     }),e => p)
 }
+
+P.prototype['fantasy-land/filter'] = function (f) {
+    return this.then(v => f(v) ? v : P.resolve(undefined));
+} 
 
 vachan.P = P
 
