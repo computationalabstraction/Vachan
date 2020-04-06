@@ -359,27 +359,34 @@ test('P.prototype.alt', () => {
     return P.all(p);
 });
 
-test('P.zero', () => {
+test('P.prototype.chain', () => {
     let p = [];
-    // WIP
-    // Fantasy Land Laws - Alt
+    // Fantasy Land Laws - Chain
     // Law - Associativity
     let I = x => x;
-    let a = P.reject(10);
-    let b = P.reject(20);
-    let c = P.resolve(30);
-    p.push(expect(a.alt(b).alt(c)).resolves.toBe(30));
-    p.push(expect(a.alt(b.alt(c))).resolves.toBe(30));
-    // Law - Distributivity 
-    p.push(expect(a.alt(c).map(x => x*x)).resolves.toBe(900));
-    p.push(expect(a.map(x => x*x).alt(c.map(x => x*x))).resolves.toBe(900));  
+    let a = P.resolve(10);
+    p.push(expect(a.chain(P.resolve).chain(I)).resolves.toBe(10));
+    p.push(expect(a.chain(x => P.resolve(x).chain(I))).resolves.toBe(10));
+    return P.all(p);
+});
+
+test('P.zero', () => {
+    let p = [];
+    // Fantasy Land Laws - Plus
+    // Law - Right Identity
+    let a = P.resolve(30);
+    p.push(expect(a.alt(P.zero())).resolves.toBe(30));
+    // Law - Left Identity
+    p.push(expect(P.zero().alt(a)).resolves.toBe(30));
+    // Law - Annihilation 
+    p.push(expect(P.zero().map(x => x).equals(P.zero())).resolves.toBe(true));
     return P.all(p);
 });
 
 test('P.empty', () => {
     let p = [];
     // WIP
-    // Fantasy Land Laws - Alt
+    // Fantasy Land Laws - Monoid
     // Law - Associativity
     let I = x => x;
     let a = P.reject(10);
@@ -393,14 +400,55 @@ test('P.empty', () => {
     return P.all(p);
 });
 
-test('P.prototype.chain', () => {
+test('P.prototype.concat', () => {
     let p = [];
-    // Fantasy Land Laws - Alt
+    // Fantasy Land Laws - Chain
     // Law - Associativity
     let I = x => x;
     let a = P.resolve(10);
     p.push(expect(a.chain(P.resolve).chain(I)).resolves.toBe(10));
     p.push(expect(a.chain(x => P.resolve(x).chain(I))).resolves.toBe(10));
+    return P.all(p);
+});
+
+// Next Test Filter******
+
+test('P.prototype.filter', () => {
+    let p = [];
+    // WIP
+    // Fantasy Land Laws - Filer 
+    // Law - Associativity
+    let I = x => x;
+    let a = P.resolve(10);
+    p.push(expect(a.chain(P.resolve).chain(I)).resolves.toBe(10));
+    p.push(expect(a.chain(x => P.resolve(x).chain(I))).resolves.toBe(10));
+    return P.all(p);
+});
+
+test('Alternative Test', () => {
+    let p = [];
+    // Fantasy Land Laws - Alternative
+    let I = x => x;
+    let a = P.resolve(10);
+    let f = P.reject(I);
+    let g = P.resolve(I);
+    // Law - Distributivity
+    p.push(expect(a.ap(f.alt(g))).resolves.toBe(10));
+    p.push(expect(a.ap(f).alt(a.alt(g))).resolves.toBe(10));
+    // Law - Annihilation 
+    p.push(expect(P.zero().equals(a.ap(P.zero()))).resolves.toBe(true));
+    return P.all(p);
+});
+
+test('Monad Test', () => {
+    let p = [];
+    // Fantasy Land Laws - Monad
+    let I = x => x;
+    let a = P.of(10);
+    // Law - Left Identity
+    p.push(expect(a.chain(I)).resolves.toBe(10));
+    // Law - Right Identity
+    p.push(expect(a.chain(P.of)).resolves.toBe(10));
     return P.all(p);
 });
 

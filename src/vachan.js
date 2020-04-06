@@ -521,18 +521,20 @@ class P {
     )
   }
 
+  //x = Tested
   // Fantasy Land and Static Land---------------------------------------
   // + Semigroup
   // + Monoid
   // + Functor
-  // + Apply
-  // + Applicative
-  // + Alt
+  // + Apply x
+  // + Applicative x
+  // + Alt x
   // + Plus
-  // + Alternative
-  // + Chain
-  // + Monad
-  // + Bifunctor
+  // + Alternative x
+  // + Chain x
+  // + Monad 
+  // + Functor x
+  // + Bifunctor x
   // + Filterable
   // + Semigroupoid
   // + Category
@@ -541,7 +543,8 @@ class P {
 
   equals(promise) {
     if(this.isPending() || promise.isPending()) {
-        return this.join(promise).then(([i,j]) => i === j)
+        let handler = i => promise.then(j => i === j,j => i === j)
+        return this.then(handler,handler)
     }
     return this.resultant() === promise.resultant()
   }
@@ -627,7 +630,7 @@ P.prototype['fantasy-land/bimap'] = function (f1, f2) {
 
 P.prototype['fantasy-land/ap'] = function (p) {
   return this.then(
-    a => p.then(f => f instanceof Function && typeof f === 'function' ? f(a) : undefined)
+    a => p.then(f => f instanceof Function && typeof f === 'function' ? f(a) : P.zero())
   )
 }
 
