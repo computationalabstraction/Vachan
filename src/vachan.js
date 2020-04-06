@@ -54,7 +54,7 @@ const scheduler = Symbol('Scheduler')
 const executor = Symbol('Executor')
 const custom = Symbol('Custom')
 const queueTask = Symbol('Queue Task')
-const internalSemigroup = Symbol("Internal Semigroup")
+// const internalSemigroup = Symbol("Internal Semigroup")
 const nothing = Symbol("Nothingness");
 
 /*
@@ -83,6 +83,9 @@ NOTE:
 On Node.js there is direct support for process.nextTick but
 on the browser the implementation will use the proccess.nextTick
 polyfill by Browserify.
+
+TODO: Explore the applicability of use of queueMicrotask method for the browser 
+or write a custom polyfill for it.
 */
 vachan.schedulers = {}
 vachan.schedulers[vachan.Macro] = h => setTimeout(h, 0)
@@ -373,7 +376,9 @@ class P {
   }
 
   resultant () {
-    return !this[state] === vachan.Pending ? this[value] : this
+    this.isPending() ? 
+    this.then(v => v instanceof internalSemigroup? v.vals:v) : 
+    this[value] instanceof internalSemigroup? this[value].vals: this[value];
   }
 
   /*
@@ -523,8 +528,8 @@ class P {
 
   // x = Tested
   // Fantasy Land and Static Land---------------------------------------
-  // + Semigroup
-  // + Monoid 
+  // + Semigroup x
+  // + Monoid x
   // + Apply x
   // + Applicative x
   // + Alt x
@@ -537,7 +542,7 @@ class P {
   // + Filterable 
   // + Semigroupoid
   // + Category
-  // + Setoid(*Not Exact)
+  // + Setoid(*Not Exactly)
   // --------------------------------------------------------------------
 
   equals(promise) {
@@ -568,12 +573,20 @@ class P {
       return this['fantasy-land/chain'](h);
   }
 
+  unwrap() {
+    return this.then(v => v instanceof internalSemigroup?v.vals:v);
+  }
+
   concat(promise) {
     return this['fantasy-land/concat'](promise);
   }
 
   filter(h) {
     return this['fantasy-land/filter'](h);
+  }
+
+  ifElse(cond,h1,h2) { 
+    return this.filter(cond).then(h1,h2);
   }
 
   compose(promise) {
@@ -641,19 +654,27 @@ P.prototype['fantasy-land/chain'] = function (f) {
     return f instanceof Function && typeof f === 'function' ? this.then(f): this;
 }
 
+function internalSemigroup(...initial) {
+    this.vals = [...initial];
+}
+
+internalSemigroup.prototype.concat = function(...v) {
+    this.vals.push(...v);
+    return this;
+}
+
 P.prototype['fantasy-land/concat'] = function (p) {
     return this.then(x => p.then(y => {
-        let o = []
+        let o = new internalSemigroup()
         let i = false;
-        o[internalSemigroup] = true;
-        x[internalSemigroup]? o.push(...x): x === nothing? o.push(x): i=y;
-        y[internalSemigroup]? o.push(...y): y === nothing? o.push(y): i=x;
+        x instanceof internalSemigroup? o.concat(...(x.vals)): x !== nothing? o.concat(x): i=y;
+        y instanceof internalSemigroup? o.concat(...(y.vals)): y !== nothing? o.concat(y): i=x;
         return i?i:o
-    }),e => p)
+    }))
 }
 
 P.prototype['fantasy-land/filter'] = function (f) {
-    return this.then(v => f(v) ? v : P.resolve(undefined));
+    return this.then(v => f(v) ? v : P.reject(v));
 } 
 
 P.prototype['fantasy-land/compose'] = function (f) {

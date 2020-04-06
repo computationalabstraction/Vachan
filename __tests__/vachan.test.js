@@ -383,31 +383,26 @@ test('P.zero', () => {
     return P.all(p);
 });
 
-test('P.empty', () => {
+test('P.prototype.concat', () => {
     let p = [];
-    // WIP
-    // Fantasy Land Laws - Monoid
+    // Fantasy Land Laws - Semigroup
     // Law - Associativity
-    let I = x => x;
-    let a = P.reject(10);
-    let b = P.reject(20);
+    let a = P.resolve(10);
+    let b = P.resolve(20);
     let c = P.resolve(30);
-    p.push(expect(a.alt(b).alt(c)).resolves.toBe(30));
-    p.push(expect(a.alt(b.alt(c))).resolves.toBe(30));
-    // Law - Distributivity 
-    p.push(expect(a.alt(c).map(x => x*x)).resolves.toBe(900));
-    p.push(expect(a.map(x => x*x).alt(c.map(x => x*x))).resolves.toBe(900));  
+    p.push(expect(a.concat(b).concat(c).unwrap()).resolves.toEqual([10,20,30]));
+    p.push(expect(a.concat(b.concat(c)).unwrap()).resolves.toEqual([10,20,30]));
     return P.all(p);
 });
 
-test('P.prototype.concat', () => {
+test('P.empty', () => {
     let p = [];
-    // Fantasy Land Laws - Chain
-    // Law - Associativity
-    let I = x => x;
-    let a = P.resolve(10);
-    p.push(expect(a.chain(P.resolve).chain(I)).resolves.toBe(10));
-    p.push(expect(a.chain(x => P.resolve(x).chain(I))).resolves.toBe(10));
+    // Fantasy Land Laws - Monoid
+    let a = P.of(10);
+    // Law - Left Identity
+    p.push(expect(a.concat(P.empty())).resolves.toBe(10));
+    // Law - Right Identity
+    p.push(expect(P.empty().concat(a)).resolves.toBe(10));
     return P.all(p);
 });
 
@@ -415,13 +410,17 @@ test('P.prototype.concat', () => {
 
 test('P.prototype.filter', () => {
     let p = [];
-    // WIP
-    // Fantasy Land Laws - Filer 
-    // Law - Associativity
-    let I = x => x;
+    // Fantasy Land Laws - Filter 
+    // Law - Distributivity
+    let c1 = x => x == 10;
+    let c2 = x => x < 20;
     let a = P.resolve(10);
-    p.push(expect(a.chain(P.resolve).chain(I)).resolves.toBe(10));
-    p.push(expect(a.chain(x => P.resolve(x).chain(I))).resolves.toBe(10));
+    p.push(expect(a.filter(v => c1(v) && c2(v))).resolves.toBe(10));
+    p.push(expect(a.filter(c1).filter(c2)).resolves.toBe(10));
+    // Law - Identity
+    p.push(expect(a.filter(x => true)).resolves.toBe(10));
+    // Law - Annihilation
+    p.push(expect(a.chain(P.of)).resolves.toBe(10));
     return P.all(p);
 });
 
