@@ -55,7 +55,7 @@ const executor = Symbol('Executor')
 const custom = Symbol('Custom')
 const queueTask = Symbol('Queue Task')
 const internalSemigroup = Symbol("Internal Semigroup")
-const nothing = Symbol("Empty");
+const nothing = Symbol("Nothingness");
 
 /*
 Predefined Schedulers or Modes -
@@ -521,21 +521,20 @@ class P {
     )
   }
 
-  //x = Tested
+  // x = Tested
   // Fantasy Land and Static Land---------------------------------------
   // + Semigroup
-  // + Monoid
-  // + Functor
+  // + Monoid 
   // + Apply x
   // + Applicative x
   // + Alt x
-  // + Plus
+  // + Plus x
   // + Alternative x
   // + Chain x
-  // + Monad 
+  // + Monad x
   // + Functor x
   // + Bifunctor x
-  // + Filterable
+  // + Filterable 
   // + Semigroupoid
   // + Category
   // + Setoid(*Not Exact)
