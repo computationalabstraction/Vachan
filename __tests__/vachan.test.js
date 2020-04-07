@@ -411,16 +411,17 @@ test('P.empty', () => {
 test('P.prototype.filter', () => {
     let p = [];
     // Fantasy Land Laws - Filter 
-    // Law - Distributivity
     let c1 = x => x == 10;
     let c2 = x => x < 20;
     let a = P.resolve(10);
+    let b = P.resolve(10);
+    // Law - Distributivity
     p.push(expect(a.filter(v => c1(v) && c2(v))).resolves.toBe(10));
     p.push(expect(a.filter(c1).filter(c2)).resolves.toBe(10));
     // Law - Identity
     p.push(expect(a.filter(x => true)).resolves.toBe(10));
     // Law - Annihilation
-    p.push(expect(a.chain(P.of)).resolves.toBe(10));
+    p.push(expect(a.filter(x => false).equals(b.filter(x => false))).resolves.toBe(true));
     return P.all(p);
 });
 

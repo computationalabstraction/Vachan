@@ -527,6 +527,7 @@ class P {
   }
 
   // x = Tested
+  // ~ = Compatibility WIP (May not be included)
   // Fantasy Land and Static Land---------------------------------------
   // + Semigroup x
   // + Monoid x
@@ -539,9 +540,9 @@ class P {
   // + Monad x
   // + Functor x
   // + Bifunctor x
-  // + Filterable 
-  // + Semigroupoid
-  // + Category
+  // + Filterable x
+  // + Semigroupoid ~
+  // + Category ~
   // + Setoid(*Not Exactly)
   // --------------------------------------------------------------------
 
@@ -585,13 +586,13 @@ class P {
     return this['fantasy-land/filter'](h);
   }
 
-  ifElse(cond,h1,h2) { 
-    return this.filter(cond).then(h1,h2);
-  }
+//   shortcircuit(cond,h1,h2) { 
+//     return this.filter(cond).then(h1,h2);
+//   }
 
-  compose(promise) {
-    return this['fantasy-land/compose'](promise); 
-  }
+//   compose(promise) {
+//     return this['fantasy-land/compose'](promise); 
+//   }
 
   static ['fantasy-land/of'](v) {
     return P.resolve(v);
@@ -674,12 +675,12 @@ P.prototype['fantasy-land/concat'] = function (p) {
 }
 
 P.prototype['fantasy-land/filter'] = function (f) {
-    return this.then(v => f(v) ? v : P.reject(v));
+    return this.then(v => f(v) ? v : P.zero());
 } 
 
-P.prototype['fantasy-land/compose'] = function (f) {
-    return this.then(v => f(v) ? v : P.resolve(undefined));
-} 
+// P.prototype['fantasy-land/compose'] = function (f) {
+//     return this.then(v => f(v) ? v : P.resolve(undefined));
+// } 
 
 // Pure Functional Definitions for Static Land
 // Will use existing Fantasy Land methods and write a wrapper
