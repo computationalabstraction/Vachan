@@ -140,13 +140,13 @@ vachan.raiseEvent = (eventname, data) => {
 // Identity
 // const I = x => x;
 // Autocurrying
-// const curry = (f) => {
-//     function $internal(...args) {
-//         if(args.length < f.length) return $internal.bind(null,...args);
-//         return f(...args);
-//     };
-//     return $internal;
-// };
+const curry = (f) => {
+    function $internal(...args) {
+        if(args.length < f.length) return $internal.bind(null,...args);
+        return f(...args);
+    };
+    return $internal;
+};
 // Function Composition
 // const compose = (...f) => x => f.reverse().reduce((acc,f) => f(acc),x);
 
@@ -681,9 +681,15 @@ P.prototype['fantasy-land/filter'] = function (f) {
 //     return this.then(v => f(v) ? v : P.resolve(undefined));
 // } 
 
-// Pure Functional Definitions for Static Land
-// Will use existing Fantasy Land methods and write a wrapper
-// WIP
+// Static Land Definitions
+// Functionally minded (curried) wrappers for Fantasy Land
+P.concat = curry((a,b) => a.concat(b))
+P.filter = curry((f,p) => p.filter(f))
+P.map = curry((f,p) => p.map(f))
+P.bimap = curry((f1,f2,p) => p.map(f1,f2))
+P.apply = curry((p1,p2) => p2.ap(p1))
+P.alt = curry((a,b) => a.alt(b))
+P.chain = curry((f,p) => p.chain(f))
 
 vachan.P = P
 
