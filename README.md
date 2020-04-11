@@ -59,13 +59,13 @@ npm i vachan
 Vachan implements the following algebraic structures -
 * [Semigroup](https://github.com/fantasyland/fantasy-land#semigroup)
 * [Monoid](https://github.com/fantasyland/fantasy-land#monoid)
-* Apply
-* Applicative
-* Alt 
-* Plus
-* Alternative
-* Chain
-* Monad
-* Functor
-* Bifunctor
-* Filterable
+* [Filterable](https://github.com/fantasyland/fantasy-land#filterable)
+* [Functor](https://github.com/fantasyland/fantasy-land#functor)
+* [Apply](https://github.com/fantasyland/fantasy-land#apply)
+* [Applicative](https://github.com/fantasyland/fantasy-land#applicative)
+* [Alt](https://github.com/fantasyland/fantasy-land#alt)
+* [Plus](https://github.com/fantasyland/fantasy-land#plus)
+* [Alternative](https://github.com/fantasyland/fantasy-land#alternative)
+* [Chain](https://github.com/fantasyland/fantasy-land#chain)
+* [Monad](https://github.com/fantasyland/fantasy-land#monad)
+* [Bifunctor](https://github.com/fantasyland/fantasy-land#bifunctor)
