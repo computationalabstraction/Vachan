@@ -54,7 +54,6 @@ const scheduler = Symbol('Scheduler')
 const executor = Symbol('Executor')
 const custom = Symbol('Custom')
 const queueTask = Symbol('Queue Task')
-// const internalSemigroup = Symbol("Internal Semigroup")
 const nothing = Symbol("Nothingness");
 
 /*
@@ -139,17 +138,17 @@ vachan.raiseEvent = (eventname, data) => {
 
 // Funtional Utils
 // Identity
-const I = x => x;
+// const I = x => x;
 // Autocurrying
-const curry = (f) => {
-    function $internal(...args) {
-        if(args.length < f.length) return $internal.bind(null,...args);
-        return f(...args);
-    };
-    return $internal;
-};
+// const curry = (f) => {
+//     function $internal(...args) {
+//         if(args.length < f.length) return $internal.bind(null,...args);
+//         return f(...args);
+//     };
+//     return $internal;
+// };
 // Function Composition
-const compose = (...f) => x => f.reverse().reduce((acc,f) => f(acc),x);
+// const compose = (...f) => x => f.reverse().reduce((acc,f) => f(acc),x);
 
 /*
 This function/logic has to be applied on both the resolved value
