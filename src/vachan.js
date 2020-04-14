@@ -54,7 +54,7 @@ const scheduler = Symbol('Scheduler')
 const executor = Symbol('Executor')
 const custom = Symbol('Custom')
 const queueTask = Symbol('Queue Task')
-const nothing = Symbol("Nothingness");
+const nothing = Symbol('Nothingness')
 
 /*
 Predefined Schedulers or Modes -
@@ -83,7 +83,7 @@ On Node.js there is direct support for process.nextTick but
 on the browser the implementation will use the proccess.nextTick
 polyfill by Browserify.
 
-TODO: Explore the applicability of use of queueMicrotask method for the browser 
+TODO: Explore the applicability of use of queueMicrotask method for the browser
 or write a custom polyfill for it.
 */
 vachan.schedulers = {}
@@ -144,12 +144,12 @@ vachan.raiseEvent = (eventname, data) => {
 // const I = x => x;
 // Autocurrying
 const curry = (f) => {
-    function $internal(...args) {
-        if(args.length < f.length) return $internal.bind(null,...args);
-        return f(...args);
-    };
-    return $internal;
-};
+  function $internal (...args) {
+    if (args.length < f.length) return $internal.bind(null, ...args)
+    return f(...args)
+  };
+  return $internal
+}
 // Function Composition
 // const compose = (...f) => x => f.reverse().reduce((acc,f) => f(acc),x);
 
@@ -378,9 +378,9 @@ class P {
   }
 
   resultant () {
-    this.isPending() ? 
-    this.then(v => v instanceof internalSemigroup? v.vals:v) : 
-    this[value] instanceof internalSemigroup? this[value].vals: this[value];
+    this.isPending()
+      ? this.then(v => v instanceof internalSemigroup ? v.vals : v)
+      : this[value] instanceof internalSemigroup ? this[value].vals : this[value]
   }
 
   /*
@@ -548,10 +548,10 @@ class P {
   // + Setoid(*Not Exactly)
   // --------------------------------------------------------------------
 
-  equals(promise) {
-    if(this.isPending() || promise.isPending()) {
-        let handler = i => promise.then(j => i === j,j => i === j)
-        return this.then(handler,handler)
+  equals (promise) {
+    if (this.isPending() || promise.isPending()) {
+      const handler = i => promise.then(j => i === j, j => i === j)
+      return this.then(handler, handler)
     }
     return this.resultant() === promise.resultant()
   }
@@ -568,64 +568,64 @@ class P {
     return this['fantasy-land/ap'](promise)
   }
 
-  alt(promise) {
+  alt (promise) {
     return this['fantasy-land/alt'](promise)
   }
 
-  chain(h) {
-      return this['fantasy-land/chain'](h);
+  chain (h) {
+    return this['fantasy-land/chain'](h)
   }
 
-  unwrap() {
-    return this.then(v => v instanceof internalSemigroup?v.vals:v);
+  unwrap () {
+    return this.then(v => v instanceof internalSemigroup ? v.vals : v)
   }
 
-  concat(promise) {
-    return this['fantasy-land/concat'](promise);
+  concat (promise) {
+    return this['fantasy-land/concat'](promise)
   }
 
-  filter(h) {
-    return this['fantasy-land/filter'](h);
+  filter (h) {
+    return this['fantasy-land/filter'](h)
   }
 
-//   shortcircuit(cond,h1,h2) { 
-//     return this.filter(cond).then(h1,h2);
-//   }
+  //   shortcircuit(cond,h1,h2) {
+  //     return this.filter(cond).then(h1,h2);
+  //   }
 
-//   compose(promise) {
-//     return this['fantasy-land/compose'](promise); 
-//   }
+  //   compose(promise) {
+  //     return this['fantasy-land/compose'](promise);
+  //   }
 
-  static ['fantasy-land/of'](v) {
-    return P.resolve(v);
+  static ['fantasy-land/of'] (v) {
+    return P.resolve(v)
   }
 
-  static of(v) {
-    return P['fantasy-land/of'](v);
+  static of (v) {
+    return P['fantasy-land/of'](v)
   }
 
-  static ['fantasy-land/id']() {
-    return P.resolve(I);
+  static ['fantasy-land/id'] () {
+    return P.resolve(I)
   }
 
-  static id() {
-    return P['fantasy-land/id']();
+  static id () {
+    return P['fantasy-land/id']()
   }
 
-  static ['fantasy-land/zero']() {
-    return P.reject(nothing);
+  static ['fantasy-land/zero'] () {
+    return P.reject(nothing)
   }
 
-  static zero() {
-    return P['fantasy-land/zero'](); 
+  static zero () {
+    return P['fantasy-land/zero']()
   }
 
-  static ['fantasy-land/empty']() {
-    return P.resolve(nothing);
+  static ['fantasy-land/empty'] () {
+    return P.resolve(nothing)
   }
 
-  static empty() {
-    return P['fantasy-land/empty'](); 
+  static empty () {
+    return P['fantasy-land/empty']()
   }
 }
 
@@ -650,54 +650,53 @@ P.prototype['fantasy-land/ap'] = function (p) {
 }
 
 P.prototype['fantasy-land/alt'] = function (p) {
-   return this.then(v => v,e => p);
+  return this.then(v => v, e => p)
 }
 
 P.prototype['fantasy-land/chain'] = function (f) {
-    return f instanceof Function && typeof f === 'function' ? this.then(f): this;
+  return f instanceof Function && typeof f === 'function' ? this.then(f) : this
 }
 
-function internalSemigroup(...initial) {
-    this.vals = [...initial];
+function internalSemigroup (...initial) {
+  this.vals = [...initial]
 }
 
-internalSemigroup.prototype.concat = function(...v) {
-    this.vals.push(...v);
-    return this;
+internalSemigroup.prototype.concat = function (...v) {
+  this.vals.push(...v)
+  return this
 }
 
 P.prototype['fantasy-land/concat'] = function (p) {
-    return this.then(x => p.then(y => {
-        let o = new internalSemigroup()
-        let i = false;
-        x instanceof internalSemigroup? o.concat(...(x.vals)): x !== nothing? o.concat(x): i=y;
-        y instanceof internalSemigroup? o.concat(...(y.vals)): y !== nothing? o.concat(y): i=x;
-        return i?i:o
-    }))
+  return this.then(x => p.then(y => {
+    const o = new internalSemigroup()
+    let i = false
+    x instanceof internalSemigroup ? o.concat(...(x.vals)) : x !== nothing ? o.concat(x) : i = y
+    y instanceof internalSemigroup ? o.concat(...(y.vals)) : y !== nothing ? o.concat(y) : i = x
+    return i || o
+  }))
 }
 
 P.prototype['fantasy-land/filter'] = function (f) {
-    return this.then(v => f(v) ? v : P.zero());
-} 
+  return this.then(v => f(v) ? v : P.zero())
+}
 
 // P.prototype['fantasy-land/compose'] = function (f) {
 //     return this.then(v => f(v) ? v : P.resolve(undefined));
-// } 
+// }
 
 // Static Land Definitions
 // Functionally minded (curried) wrappers for Fantasy Land
-P.concat = curry((a,b) => a.concat(b))
-P.filter = curry((f,p) => p.filter(f))
-P.map = curry((f,p) => p.map(f))
-P.bimap = curry((f1,f2,p) => p.map(f1,f2))
-P.apply = curry((p1,p2) => p2.ap(p1))
-P.alt = curry((a,b) => a.alt(b))
-P.chain = curry((f,p) => p.chain(f))
+P.concat = curry((a, b) => a.concat(b))
+P.filter = curry((f, p) => p.filter(f))
+P.map = curry((f, p) => p.map(f))
+P.bimap = curry((f1, f2, p) => p.map(f1, f2))
+P.apply = curry((p1, p2) => p2.ap(p1))
+P.alt = curry((a, b) => a.alt(b))
+P.chain = curry((f, p) => p.chain(f))
 
-P.realm.on(vachan.events.unhandledRejection,() => {
-
-});
-
+vachan.realm.on(vachan.events.unhandledRejection, () => {
+  console.error('Unhandled Promise Rejection: Please avoid unhandled rejection')
+})
 
 vachan.P = P
 
