@@ -51,7 +51,7 @@ npm i vachan
 ```
 
 ## Usage
-Complete reference has been given on the official documentation website link given below - <br> <br>
+Complete reference has been given on the official documentation website link given below - <br>
 * [Documentation](https://vachan.archan.io)
 
 ## Fantasy Land and Static Land
