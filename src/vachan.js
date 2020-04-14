@@ -104,6 +104,8 @@ any object can be used provided it has emit and on methods.
 
 This implementation is swappable by any object which has
 emit and on methods defined.
+
+*** The on method should accept Symbols as eventname ***
 */
 vachan.realm = require('conciseee')()
 
