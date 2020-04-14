@@ -123,6 +123,7 @@ vachan.events.Chained = Symbol('Chained')
 vachan.events.HandlerQueued = Symbol('HandlerQueued')
 vachan.events.HandlerExecuted = Symbol('HandlerExecuted')
 vachan.events.Rechained = Symbol('Rechained')
+vachan.events.unhandledRejection = Symbol('Unhandled Rejection')
 Object.freeze(vachan.events)
 
 /*
@@ -690,6 +691,11 @@ P.bimap = curry((f1,f2,p) => p.map(f1,f2))
 P.apply = curry((p1,p2) => p2.ap(p1))
 P.alt = curry((a,b) => a.alt(b))
 P.chain = curry((f,p) => p.chain(f))
+
+P.realm.on(vachan.events.unhandledRejection,() => {
+
+});
+
 
 vachan.P = P
 
