@@ -99,44 +99,44 @@ Object.seal(vachan.schedulers)
 
 /*
 Event Portal -
-The default implementation is provided using conciseee package but
-any object can be used provided it has emit and on methods.
-
-This implementation is swappable by any object which has
-emit and on methods defined.
-
-*** The on method should accept Symbols as eventname ***
+The implementation is provided using conciseee.
 */
-vachan.realm = require('conciseee')()
+vachan.realm = {
+    emitter: require('conciseee')()
+}
 
 /*
 Events Defintions -
 Events which will be raised on the Event Portal
 */
-vachan.events = {}
-vachan.events.Created = Symbol('Created')
-vachan.events.ExecutorExecuted = Symbol('ExecutorExecuted')
-vachan.events.ExecutorThrows = Symbol('ExecutorThrows')
-vachan.events.Fulfilled = Symbol('Fulfilled')
-vachan.events.Rejected = Symbol('Rejected')
-vachan.events.Preresolved = Symbol('Preresolved')
-vachan.events.Prerejected = Symbol('Prerejected')
-vachan.events.Chained = Symbol('Chained')
-vachan.events.HandlerQueued = Symbol('HandlerQueued')
-vachan.events.HandlerExecuted = Symbol('HandlerExecuted')
-vachan.events.Rechained = Symbol('Rechained')
-vachan.events.unhandledRejection = Symbol('Unhandled Rejection')
-Object.freeze(vachan.events)
+vachan.realm.events = {}
+vachan.realm.events.Created = Symbol('Created')
+vachan.realm.events.ExecutorExecuted = Symbol('ExecutorExecuted')
+vachan.realm.events.ExecutorThrows = Symbol('ExecutorThrows')
+vachan.realm.events.Fulfilled = Symbol('Fulfilled')
+vachan.realm.events.Rejected = Symbol('Rejected')
+vachan.realm.events.Preresolved = Symbol('Preresolved')
+vachan.realm.events.Prerejected = Symbol('Prerejected')
+vachan.realm.events.Chained = Symbol('Chained')
+vachan.realm.events.HandlerQueued = Symbol('HandlerQueued')
+vachan.realm.events.HandlerExecuted = Symbol('HandlerExecuted')
+vachan.realm.events.Rechained = Symbol('Rechained')
+vachan.realm.events.unhandledRejection = Symbol('Unhandled Rejection')
+Object.freeze(vachan.realm.events)
 
 /*
 Adapter function to the event portal -
 This function is used for loose coupling between the portal and the
 internal promise code as the implementation for the portal can be swapped.
 */
-vachan.raiseEvent = (eventname, data) => {
+vachan.realm.raiseEvent = (eventname, data) => {
   data.event = eventname
   data.timestamp = new Date()
-  vachan.realm.emit(eventname, data, true)
+  vachan.realm.emit(eventname, data)
+}
+
+vachan.realm.onEvent = (eventname, handler) => {
+    vachan.realm.on(eventname, handler, true)
 }
 
 // Funtional Utils
@@ -178,7 +178,7 @@ const recurHandler = (value, context) => {
           if (!rcalled && !recalled) context.reject(e)
           recalled = true
         })
-        vachan.raiseEvent(vachan.events.Rechained, { value: value, promise: context.cp })
+        vachan.raiseEvent(vachan.realm.events.Rechained, { value: value, promise: context.cp })
       } else {
         context.resolve(value)
       }
@@ -199,7 +199,7 @@ const handler = (f, context) => (v) => {
   } catch (e) {
     context.reject(e)
   }
-  vachan.raiseEvent(vachan.events.HandlerExecuted, { promise: context.cp, handler: f })
+  vachan.raiseEvent(vachan.realm.events.HandlerExecuted, { promise: context.cp, handler: f })
 }
 
 /*
@@ -330,7 +330,7 @@ class P {
     this[value] = undefined
     this[successHandler] = []
     this[failureHandler] = []
-    vachan.raiseEvent(vachan.events.Created, { promise: this })
+    vachan.raiseEvent(vachan.realm.events.Created, { promise: this })
     if (executorFunc && executorFunc instanceof Function && typeof executorFunc === 'function') {
       this[executor] = executorFunc
       try {
@@ -344,11 +344,11 @@ class P {
           context.reject,
           this
         )
-        vachan.raiseEvent(vachan.events.ExecutorExecuted, { promise: this, executor: this[executor] })
+        vachan.raiseEvent(vachan.realm.events.ExecutorExecuted, { promise: this, executor: this[executor] })
       } catch (e) {
         this[reject](e)
-        vachan.raiseEvent(vachan.events.ExecutorExecuted, { promise: this, executor: this[executor] })
-        vachan.raiseEvent(vachan.events.ExecutorThrows, { promise: this, executor: this[executor] })
+        vachan.raiseEvent(vachan.realm.events.ExecutorExecuted, { promise: this, executor: this[executor] })
+        vachan.raiseEvent(vachan.realm.events.ExecutorThrows, { promise: this, executor: this[executor] })
       }
     }
   }
@@ -394,7 +394,7 @@ class P {
       for (const handler of this[successHandler]) {
         this[queueTask](() => handler(v))
       }
-      vachan.raiseEvent(vachan.events.Fulfilled, { promise: this })
+      vachan.raiseEvent(vachan.realm.events.Fulfilled, { promise: this })
     }
   }
 
@@ -409,7 +409,7 @@ class P {
       for (const handler of this[failureHandler]) {
         this[queueTask](() => handler(e))
       }
-      vachan.raiseEvent(vachan.events.Rejected, { promise: this })
+      vachan.raiseEvent(vachan.realm.events.Rejected, { promise: this })
     }
   }
 
@@ -433,7 +433,7 @@ class P {
     */
   [queueTask] (h) {
     this[custom] ? this[scheduler](h) : vachan.schedulers[this[scheduler]](h)
-    vachan.raiseEvent(vachan.events.HandlerQueued, { promise: this, scheduler: this[scheduler], handler: h })
+    vachan.raiseEvent(vachan.realm.events.HandlerQueued, { promise: this, scheduler: this[scheduler], handler: h })
   }
 
   /*
@@ -452,17 +452,17 @@ class P {
     if (this[state] === vachan.Fulfilled) {
       if (s) this[queueTask](() => handler(s, context)(this[value]))
       else this[queueTask](() => parasite[resolve](this[value]))
-      vachan.raiseEvent(vachan.events.Preresolved, { substrate: this, parasite: parasite, handler: s })
+      vachan.raiseEvent(vachan.realm.events.Preresolved, { substrate: this, parasite: parasite, handler: s })
     } else if (this[state] === vachan.Rejected) {
       if (f) this[queueTask](() => handler(f, context)(this[value]))
       else this[queueTask](() => parasite[reject](this[value]))
-      vachan.raiseEvent(vachan.events.Prerejected, { substrate: this, parasite: parasite, handler: f })
+      vachan.raiseEvent(vachan.realm.events.Prerejected, { substrate: this, parasite: parasite, handler: f })
     } else {
       if (s) this[successHandler].push(handler(s, context))
       else this[successHandler].push(context.resolve)
       if (f) this[failureHandler].push(handler(f, context))
       else this[failureHandler].push(context.reject)
-      vachan.raiseEvent(vachan.events.Chained, { substrate: this, parasite: parasite })
+      vachan.raiseEvent(vachan.realm.events.Chained, { substrate: this, parasite: parasite })
     }
     return parasite
   }
@@ -694,7 +694,7 @@ P.apply = curry((p1, p2) => p2.ap(p1))
 P.alt = curry((a, b) => a.alt(b))
 P.chain = curry((f, p) => p.chain(f))
 
-vachan.realm.on(vachan.events.unhandledRejection, () => {
+vachan.realm.on(vachan.realm.events.unhandledRejection, () => {
   console.error('Unhandled Promise Rejection: Please avoid unhandled rejection')
 })
 
