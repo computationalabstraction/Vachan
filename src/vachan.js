@@ -102,14 +102,14 @@ Event Portal -
 The implementation is provided using conciseee.
 */
 vachan.realm = {
-    emitter: require('conciseee')()
+    emitter: require('conciseee')(),
+    events: {}
 }
 
 /*
 Events Defintions -
 Events which will be raised on the Event Portal
 */
-vachan.realm.events = {}
 vachan.realm.events.Created = Symbol('Created')
 vachan.realm.events.ExecutorExecuted = Symbol('ExecutorExecuted')
 vachan.realm.events.ExecutorThrows = Symbol('ExecutorThrows')
@@ -122,22 +122,19 @@ vachan.realm.events.HandlerQueued = Symbol('HandlerQueued')
 vachan.realm.events.HandlerExecuted = Symbol('HandlerExecuted')
 vachan.realm.events.Rechained = Symbol('Rechained')
 vachan.realm.events.unhandledRejection = Symbol('Unhandled Rejection')
-Object.freeze(vachan.realm.events)
 
-/*
-Adapter function to the event portal -
-This function is used for loose coupling between the portal and the
-internal promise code as the implementation for the portal can be swapped.
-*/
 vachan.realm.raiseEvent = (eventname, data) => {
   data.event = eventname
   data.timestamp = new Date()
-  vachan.realm.emit(eventname, data)
+  vachan.realm.emitter.emit(eventname, data)
 }
 
 vachan.realm.onEvent = (eventname, handler) => {
-    vachan.realm.on(eventname, handler, true)
+    vachan.realm.emitter.on(eventname, handler, true)
 }
+
+Object.freeze(vachan.realm.events)
+Object.freeze(vachan.realm)
 
 // Funtional Utils
 // Identity
@@ -178,7 +175,7 @@ const recurHandler = (value, context) => {
           if (!rcalled && !recalled) context.reject(e)
           recalled = true
         })
-        vachan.raiseEvent(vachan.realm.events.Rechained, { value: value, promise: context.cp })
+        vachan.realm.raiseEvent(vachan.realm.events.Rechained, { value: value, promise: context.cp })
       } else {
         context.resolve(value)
       }
@@ -199,7 +196,7 @@ const handler = (f, context) => (v) => {
   } catch (e) {
     context.reject(e)
   }
-  vachan.raiseEvent(vachan.realm.events.HandlerExecuted, { promise: context.cp, handler: f })
+  vachan.realm.raiseEvent(vachan.realm.events.HandlerExecuted, { promise: context.cp, handler: f })
 }
 
 /*
@@ -330,7 +327,7 @@ class P {
     this[value] = undefined
     this[successHandler] = []
     this[failureHandler] = []
-    vachan.raiseEvent(vachan.realm.events.Created, { promise: this })
+    vachan.realm.raiseEvent(vachan.realm.events.Created, { promise: this })
     if (executorFunc && executorFunc instanceof Function && typeof executorFunc === 'function') {
       this[executor] = executorFunc
       try {
@@ -344,11 +341,11 @@ class P {
           context.reject,
           this
         )
-        vachan.raiseEvent(vachan.realm.events.ExecutorExecuted, { promise: this, executor: this[executor] })
+        vachan.realm.raiseEvent(vachan.realm.events.ExecutorExecuted, { promise: this, executor: this[executor] })
       } catch (e) {
         this[reject](e)
-        vachan.raiseEvent(vachan.realm.events.ExecutorExecuted, { promise: this, executor: this[executor] })
-        vachan.raiseEvent(vachan.realm.events.ExecutorThrows, { promise: this, executor: this[executor] })
+        vachan.realm.raiseEvent(vachan.realm.events.ExecutorExecuted, { promise: this, executor: this[executor] })
+        vachan.realm.raiseEvent(vachan.realm.events.ExecutorThrows, { promise: this, executor: this[executor] })
       }
     }
   }
@@ -394,7 +391,7 @@ class P {
       for (const handler of this[successHandler]) {
         this[queueTask](() => handler(v))
       }
-      vachan.raiseEvent(vachan.realm.events.Fulfilled, { promise: this })
+      vachan.realm.raiseEvent(vachan.realm.events.Fulfilled, { promise: this })
     }
   }
 
@@ -409,7 +406,7 @@ class P {
       for (const handler of this[failureHandler]) {
         this[queueTask](() => handler(e))
       }
-      vachan.raiseEvent(vachan.realm.events.Rejected, { promise: this })
+      vachan.realm.raiseEvent(vachan.realm.events.Rejected, { promise: this })
     }
   }
 
@@ -433,7 +430,7 @@ class P {
     */
   [queueTask] (h) {
     this[custom] ? this[scheduler](h) : vachan.schedulers[this[scheduler]](h)
-    vachan.raiseEvent(vachan.realm.events.HandlerQueued, { promise: this, scheduler: this[scheduler], handler: h })
+    vachan.realm.raiseEvent(vachan.realm.events.HandlerQueued, { promise: this, scheduler: this[scheduler], handler: h })
   }
 
   /*
@@ -452,17 +449,17 @@ class P {
     if (this[state] === vachan.Fulfilled) {
       if (s) this[queueTask](() => handler(s, context)(this[value]))
       else this[queueTask](() => parasite[resolve](this[value]))
-      vachan.raiseEvent(vachan.realm.events.Preresolved, { substrate: this, parasite: parasite, handler: s })
+      vachan.realm.raiseEvent(vachan.realm.events.Preresolved, { substrate: this, parasite: parasite, handler: s })
     } else if (this[state] === vachan.Rejected) {
       if (f) this[queueTask](() => handler(f, context)(this[value]))
       else this[queueTask](() => parasite[reject](this[value]))
-      vachan.raiseEvent(vachan.realm.events.Prerejected, { substrate: this, parasite: parasite, handler: f })
+      vachan.realm.raiseEvent(vachan.realm.events.Prerejected, { substrate: this, parasite: parasite, handler: f })
     } else {
       if (s) this[successHandler].push(handler(s, context))
       else this[successHandler].push(context.resolve)
       if (f) this[failureHandler].push(handler(f, context))
       else this[failureHandler].push(context.reject)
-      vachan.raiseEvent(vachan.realm.events.Chained, { substrate: this, parasite: parasite })
+      vachan.realm.raiseEvent(vachan.realm.events.Chained, { substrate: this, parasite: parasite })
     }
     return parasite
   }
@@ -694,7 +691,7 @@ P.apply = curry((p1, p2) => p2.ap(p1))
 P.alt = curry((a, b) => a.alt(b))
 P.chain = curry((f, p) => p.chain(f))
 
-vachan.realm.on(vachan.realm.events.unhandledRejection, () => {
+vachan.realm.onEvent(vachan.realm.events.unhandledRejection, () => {
   console.error('Unhandled Promise Rejection: Please avoid unhandled rejection')
 })
 
@@ -704,7 +701,7 @@ vachan.P = P
 Export
 */
 for (const key of Object.keys(vachan)) {
-  if (key !== 'realm' && key !== 'default_type') {
+  if (key !== 'default_type') {
     Object.defineProperty(vachan, key, {
       configurable: false,
       writable: false
