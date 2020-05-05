@@ -13,7 +13,7 @@
     "@babel/preset-env": "^7.8.3",
     "babel-preset-minify": "^0.5.1",
     "browserify": "^16.5.0",
-    "jest": "^25.1.0",
+    "jest": "^26.0.1",
     "promises-aplus-tests": "*",
     "standard": "^14.3.3"
   },
