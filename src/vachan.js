@@ -693,8 +693,9 @@ P.alt = curry((a, b) => a.alt(b))
 P.chain = curry((f, p) => p.chain(f))
 
 vachan.realm.onEvent(vachan.realm.events.unhandledRejection, (e) => {
-  console.error("Unhandled Promise Rejection: Please avoid unhandled rejection")
-  throw Error(`Unhandled Promise Rejection: ${e.promise.resultant()}`)
+  console.log(e);
+  const value = e.promise.resultant()
+  console.error(`Unhandled Promise Rejection: ${value != nothing?value:"Nothingness"}`)
 })
 
 vachan.P = P
