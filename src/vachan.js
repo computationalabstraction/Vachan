@@ -102,8 +102,8 @@ Event Portal -
 The implementation is provided using conciseee.
 */
 vachan.realm = {
-    emitter: require('conciseee')(),
-    events: {}
+  emitter: require('conciseee')(),
+  events: {}
 }
 
 /*
@@ -130,7 +130,7 @@ vachan.realm.raiseEvent = (eventname, data) => {
 }
 
 vachan.realm.onEvent = (eventname, handler) => {
-    vachan.realm.emitter.on(eventname, handler, true)
+  vachan.realm.emitter.on(eventname, handler, true)
 }
 
 Object.freeze(vachan.realm.events)
@@ -138,7 +138,7 @@ Object.freeze(vachan.realm)
 
 // Funtional Utils
 // Identity
-// const I = x => x;
+const I = x => x
 // Autocurrying
 const curry = (f) => {
   function $internal (...args) {
@@ -376,8 +376,8 @@ class P {
 
   resultant () {
     return this.isPending()
-      ? this.then(v => v instanceof internalSemigroup ? v.vals : v)
-      : this[value] instanceof internalSemigroup ? this[value].vals : this[value]
+      ? this.then(v => v instanceof InternalSemigroup ? v.vals : v)
+      : this[value] instanceof InternalSemigroup ? this[value].vals : this[value]
   }
 
   /*
@@ -407,7 +407,7 @@ class P {
         this[queueTask](() => handler(e))
       }
       vachan.realm.raiseEvent(vachan.realm.events.Rejected, { promise: this })
-      if(this[failureHandler].length == 0) vachan.realm.raiseEvent(vachan.realm.events.unhandledRejection, { promise: this })
+      if (this[failureHandler].length === 0) vachan.realm.raiseEvent(vachan.realm.events.unhandledRejection, { promise: this })
     }
   }
 
@@ -575,7 +575,7 @@ class P {
   }
 
   unwrap () {
-    return this.then(v => v instanceof internalSemigroup ? v.vals : v)
+    return this.then(v => v instanceof InternalSemigroup ? v.vals : v)
   }
 
   concat (promise) {
@@ -655,21 +655,21 @@ P.prototype['fantasy-land/chain'] = function (f) {
   return f instanceof Function && typeof f === 'function' ? this.then(f) : this
 }
 
-function internalSemigroup (...initial) {
+function InternalSemigroup (...initial) {
   this.vals = [...initial]
 }
 
-internalSemigroup.prototype.concat = function (...v) {
+InternalSemigroup.prototype.concat = function (...v) {
   this.vals.push(...v)
   return this
 }
 
 P.prototype['fantasy-land/concat'] = function (p) {
   return this.then(x => p.then(y => {
-    const o = new internalSemigroup()
+    const o = new InternalSemigroup()
     let i = false
-    x instanceof internalSemigroup ? o.concat(...(x.vals)) : x !== nothing ? o.concat(x) : i = y
-    y instanceof internalSemigroup ? o.concat(...(y.vals)) : y !== nothing ? o.concat(y) : i = x
+    x instanceof InternalSemigroup ? o.concat(...(x.vals)) : x !== nothing ? o.concat(x) : i = y
+    y instanceof InternalSemigroup ? o.concat(...(y.vals)) : y !== nothing ? o.concat(y) : i = x
     return i || o
   }))
 }
@@ -693,9 +693,9 @@ P.alt = curry((a, b) => a.alt(b))
 P.chain = curry((f, p) => p.chain(f))
 
 vachan.realm.onEvent(vachan.realm.events.unhandledRejection, (e) => {
-  console.log(e);
+  console.log(e)
   const value = e.promise.resultant()
-  console.error(`Unhandled Promise Rejection: ${value != nothing?value:"Nothingness"}`)
+  console.error(`Unhandled Promise Rejection: ${value !== nothing ? value : 'Nothingness'}`)
 })
 
 vachan.P = P
