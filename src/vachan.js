@@ -375,7 +375,7 @@ class P {
   }
 
   resultant () {
-    this.isPending()
+    return this.isPending()
       ? this.then(v => v instanceof internalSemigroup ? v.vals : v)
       : this[value] instanceof internalSemigroup ? this[value].vals : this[value]
   }
@@ -407,6 +407,7 @@ class P {
         this[queueTask](() => handler(e))
       }
       vachan.realm.raiseEvent(vachan.realm.events.Rejected, { promise: this })
+      if(this[failureHandler].length == 0) vachan.realm.raiseEvent(vachan.realm.events.unhandledRejection, { promise: this })
     }
   }
 
@@ -691,8 +692,9 @@ P.apply = curry((p1, p2) => p2.ap(p1))
 P.alt = curry((a, b) => a.alt(b))
 P.chain = curry((f, p) => p.chain(f))
 
-vachan.realm.onEvent(vachan.realm.events.unhandledRejection, () => {
-  console.error('Unhandled Promise Rejection: Please avoid unhandled rejection')
+vachan.realm.onEvent(vachan.realm.events.unhandledRejection, (e) => {
+  console.error("Unhandled Promise Rejection: Please avoid unhandled rejection")
+  throw Error(`Unhandled Promise Rejection: ${e.promise.resultant()}`)
 })
 
 vachan.P = P
