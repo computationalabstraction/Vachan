@@ -50,7 +50,7 @@ npm i vachan
 <script src="https://unpkg.com/vachan/dist/browser/vachan.dist.min.js.gz"></script>
 ```
 
-## Documentation
+## Further Usage
 Complete reference has been given on the official documentation website link given below - <br>
 * [Documentation](https://vachan.archan.io)
 
