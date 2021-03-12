@@ -36,6 +36,7 @@ P.all(a)
 ```
 
 ## Installation
+> Algebraic version not published yet
 
 ### Node
 ```
